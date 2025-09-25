@@ -1,6 +1,5 @@
 import {genkit, type Flow} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {isDev} from 'genkit/dev';
 
 const prodCors = {
   // TODO: Update with your app's domain.
@@ -10,7 +9,7 @@ const prodCors = {
 export const ai = genkit({
   plugins: [googleAI({apiKey: process.env.GEMINI_API_KEY})],
   model: 'googleai/gemini-2.5-flash',
-  enableTracing: isDev(),
+  enableTracing: genkit.isDev,
   flowStateStore: 'firebase',
   traceStore: 'firebase',
   flowStateStoreConfig: {
@@ -18,13 +17,13 @@ export const ai = genkit({
   },
   traceStoreConfig: {
     collection: 'traces',
-    allowInsecureConnection: isDev(),
+    allowInsecureConnection: genkit.isDev,
   },
   auth: async (
     auth: {key: string; flowIds: string[]},
     flow: Flow
   ): Promise<boolean> => {
-    return isDev() ? true : false;
+    return genkit.isDev ? true : false;
   },
-  cors: isDev() ? undefined : prodCors,
+  cors: genkit.isDev ? undefined : prodCors,
 });
