@@ -60,10 +60,17 @@ export function ProposalFramework() {
 
   const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === 'client' && value.toLowerCase().trim() === 'equinix') {
-      setUseMSA(true);
-    }
-    setProjectInfo({ ...projectInfo, [name]: value });
+    setProjectInfo(prev => {
+        const newInfo = { ...prev, [name]: value };
+        if (name === 'client') {
+            if (value && value.toLowerCase().trim() === 'equinix') {
+                setUseMSA(true);
+            } else {
+                setUseMSA(false);
+            }
+        }
+        return newInfo;
+    });
   };
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
@@ -109,34 +116,42 @@ export function ProposalFramework() {
   
   const handleChallenge = async () => {
     if (!userQuery.trim() || !recommendation) return;
-
+  
     const currentTurn: ConversationTurn = { role: 'user', content: userQuery };
     const newConversation = [...conversation, currentTurn];
     setConversation(newConversation);
     setUserQuery('');
     setIsConversing(true);
-
-    const input: ChallengeRecommendationInput = {
-      ...getContextForAI(),
-      conversationHistory: newConversation
-    };
-
+  
     try {
+      const input: ChallengeRecommendationInput = {
+        ...getContextForAI(),
+        conversationHistory: newConversation,
+      };
       const result: ChallengeRecommendationOutput = await challengeRecommendation(input);
       const aiTurn: ConversationTurn = { role: 'model', content: result.response };
       setConversation([...newConversation, aiTurn]);
-      
+  
       if (result.updatedConfig) {
         const updatedCostConfig = { ...costConfig, ...result.updatedConfig };
         setCostConfig(updatedCostConfig);
-        toast({ title: 'Configuration Updated', description: 'The project configuration has been updated based on your request.' });
+        toast({
+          title: 'Configuration Updated',
+          description: 'The project configuration has been updated based on your request.',
+        });
       }
-
     } catch (error) {
-      console.error("Failed to get challenge response:", error);
-      const aiTurn: ConversationTurn = { role: 'model', content: 'Sorry, I encountered an error. Please try again.' };
+      console.error('Failed to get challenge response:', error);
+      const aiTurn: ConversationTurn = {
+        role: 'model',
+        content: 'Sorry, I encountered an error. Please try again.',
+      };
       setConversation([...newConversation, aiTurn]);
-      toast({ variant: 'destructive', title: 'Error', description: 'Could not get a response.' });
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not get a response.',
+      });
     } finally {
       setIsConversing(false);
     }
@@ -161,10 +176,10 @@ export function ProposalFramework() {
 
   const numLocations = travelCosts?.numberOfLocations || 0;
   const onsiteLaborCost = costConfig.onSiteLabor * costConfig.technicianRate;
-  const travelCost = travelCosts ? (travelCosts.totalTravelCost / numLocations) : 0;
-  const livingExpensesCost = travelCosts ? (travelCosts.totalLivingExpenses / numLocations) : 0;
-  const mealsCost = travelCosts ? (travelCosts.totalOvernightStays / numLocations) * costConfig.mealsCost : 0;
-  const parkingCost = travelCosts ? (travelCosts.totalOvernightStays / numLocations) * costConfig.parking : 0;
+  const travelCost = travelCosts && numLocations > 0 ? (travelCosts.totalTravelCost / numLocations) : 0;
+  const livingExpensesCost = travelCosts && numLocations > 0 ? (travelCosts.totalLivingExpenses / numLocations) : 0;
+  const mealsCost = travelCosts && numLocations > 0 ? (travelCosts.totalOvernightStays / numLocations) * costConfig.mealsCost : 0;
+  const parkingCost = travelCosts && numLocations > 0 ? (travelCosts.totalOvernightStays / numLocations) * costConfig.parking : 0;
   const perSiteSubtotal = onsiteLaborCost + travelCost + livingExpensesCost + mealsCost + parkingCost;
   const totalSubtotal = perSiteSubtotal * numLocations;
   const pmOverheadCost = totalSubtotal * (costConfig.pmOverhead / 100);
@@ -322,7 +337,7 @@ export function ProposalFramework() {
 
                 <AccordionItem value="item-4">
                     <AccordionTrigger className="text-xl font-headline">4. Final Proposal Summary</AccordionTrigger>
-                    <AccordionContent className="pt-4 space-y-6">
+                    <AccordionContent className="pt-4 space-y-4">
                         {recommendation ? (
                             <>
                                 <div className="space-y-4">
