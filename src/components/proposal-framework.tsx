@@ -22,7 +22,7 @@ import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 
 type ProjectInfo = { name: string; client: string; date: string; };
-type CostConfig = { onSiteLabor: number; livingExpenses: number; pmOverhead: number; };
+type CostConfig = { onSiteLabor: number; livingExpenses: number; pmOverhead: number; travelHours: number; parkingCost: number; };
 type StrategyAnalysis = { a: string; b: string; };
 
 export function ProposalFramework() {
@@ -31,7 +31,7 @@ export function ProposalFramework() {
   const [bom, setBom] = useState<GenerateBillOfMaterialsFromDrawingOutput | null>(null);
   const [travelCosts, setTravelCosts] = useState<EstimateTravelCostsOutput | null>(null);
   const [recommendation, setRecommendation] = useState<AiPoweredRecommendationOutput | null>(null);
-  const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, livingExpenses: 330, pmOverhead: 12.5 });
+  const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, livingExpenses: 330, pmOverhead: 12.5, travelHours: 2, parkingCost: 25 });
   const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis>({ a: 'Strategy A involves an accelerated deployment model, prioritizing speed by deploying multiple technician teams simultaneously across different regions. This approach aims to reduce the overall project timeline but may incur higher logistical and travel costs due to less optimized routing.', b: 'Strategy B focuses on a logistical cluster deployment, where a single technician or team is assigned to a geographical province or cluster of locations. This strategy optimizes travel routes and minimizes overnight stays, aiming for maximum cost-efficiency, potentially at the expense of a longer project duration.' });
   const [isRecommending, setIsRecommending] = useState(false);
 
@@ -44,7 +44,7 @@ export function ProposalFramework() {
     const clientData = "Client has a standard pricing agreement with tiered discounts.";
     const vendorQuotes = "Primary vendor offers a 5% discount on bulk orders over $50,000.";
     const logisticalConfigurations = travelCosts?.optimalRouteSummary || "Standard logistics to be applied based on location density.";
-    const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%.`;
+    const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%. Travel: ${costConfig.travelHours} hours. Parking: $${costConfig.parkingCost}.`;
 
     try {
       const result = await aiPoweredRecommendation({ clientData, vendorQuotes, logisticalConfigurations, costModelConfigurations, strategyAAnalysis: strategyAnalysis.a, strategyBAnalysis: strategyAnalysis.b });
@@ -113,6 +113,8 @@ export function ProposalFramework() {
                             <div className="space-y-2"><Label htmlFor="onSiteLabor">On-Site Labor (hours/site)</Label><Input id="onSiteLabor" name="onSiteLabor" type="number" value={costConfig.onSiteLabor} onChange={handleCostConfigChange} /></div>
                             <div className="space-y-2"><Label htmlFor="livingExpenses">Living Expenses ($/night)</Label><Input id="livingExpenses" name="livingExpenses" type="number" value={costConfig.livingExpenses} onChange={handleCostConfigChange} /></div>
                              <div className="space-y-2"><Label htmlFor="pmOverhead">Project Management Overhead (%)</Label><Input id="pmOverhead" name="pmOverhead" type="number" value={costConfig.pmOverhead} onChange={handleCostConfigChange} /></div>
+                             <div className="space-y-2"><Label htmlFor="travelHours">Travel (hours &amp; matrix)</Label><Input id="travelHours" name="travelHours" type="number" value={costConfig.travelHours} onChange={handleCostConfigChange} /></div>
+                             <div className="space-y-2"><Label htmlFor="parkingCost">Parking ($)</Label><Input id="parkingCost" name="parkingCost" type="number" value={costConfig.parkingCost} onChange={handleCostConfigChange} /></div>
                         </CardContent>
                     </Card>
                 </div>
@@ -147,7 +149,7 @@ export function ProposalFramework() {
         )}
 
         <AccordionItem value="item-3">
-            <AccordionTrigger className="text-xl font-headline">3. Strategy & AI Recommendation</AccordionTrigger>
+            <AccordionTrigger className="text-xl font-headline">3. Strategy &amp; AI Recommendation</AccordionTrigger>
             <AccordionContent className="pt-4 space-y-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="space-y-2"><Label htmlFor="strategy-a" className="text-lg font-semibold">Strategy A Analysis</Label><Textarea id="strategy-a" name="a" value={strategyAnalysis.a} onChange={handleStrategyAnalysisChange} rows={8} /></div><div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B Analysis</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div></div>
                  <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
