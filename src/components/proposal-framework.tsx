@@ -67,15 +67,15 @@ export function ProposalFramework() {
   };
 
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
+    setCostConfig(prev => ({ ...prev, [e.target.name]: parseFloat(e.target.value) || 0 }));
   };
   
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
+    setStrategyAnalysis(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleCanvasInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCanvasInputs({ ...canvasInputs, [e.target.name]: e.target.value });
+    setCanvasInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const getContextForAI = () => {
