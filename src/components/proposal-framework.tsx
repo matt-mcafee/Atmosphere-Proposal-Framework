@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
@@ -166,11 +166,17 @@ export function ProposalFramework() {
             <AccordionContent className="pt-4">
                 <Card className="overflow-hidden print:shadow-none print:border-none">
                     <CardHeader className="bg-primary text-primary-foreground print:bg-transparent print:text-foreground">
-                        <div className="flex justify-between items-center">
-                            <CardTitle className="font-headline text-2xl">Proposal: {projectInfo.name || "..."}</CardTitle>
-                            <Button variant="secondary" onClick={() => window.print()} className="print:hidden"><Printer className="mr-2 h-4 w-4" />Export to PDF</Button>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <CardTitle className="font-headline text-2xl">Proposal: {projectInfo.name || "..."}</CardTitle>
+                                <CardDescription className="text-primary-foreground/80 print:text-muted-foreground">Prepared for: {projectInfo.client || "..."} | Date: {projectInfo.date}</CardDescription>
+                            </div>
+                            <div className="flex space-x-2 print:hidden">
+                                <Button variant="secondary" onClick={() => {}}><FileText className="mr-2 h-4 w-4" />Export to Docs</Button>
+                                <Button variant="secondary" onClick={() => {}}><Sheet className="mr-2 h-4 w-4" />Export to Sheets</Button>
+                                <Button variant="secondary" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Export to PDF</Button>
+                            </div>
                         </div>
-                        <CardDescription className="text-primary-foreground/80 print:text-muted-foreground">Prepared for: {projectInfo.client || "..."} | Date: {projectInfo.date}</CardDescription>
                     </CardHeader>
                     <CardContent className="p-6 space-y-8">
                         {recommendation ? (<div className="p-4 rounded-lg bg-accent/10 border border-accent/20 print:border-gray-200"><h3 className="font-headline text-lg text-accent-foreground font-semibold flex items-center gap-2"><Lightbulb className="text-accent"/> Executive Summary</h3><p className="mt-2 text-muted-foreground">{recommendation.recommendation} The recommended approach is <strong>{recommendation.recommendedStrategy}</strong> with an estimated total cost of <strong>${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>.</p></div>) : (<div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the summary.</div>)}
