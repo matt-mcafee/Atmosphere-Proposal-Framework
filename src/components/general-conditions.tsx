@@ -3,6 +3,8 @@ export function GeneralConditions() {
     <div className="prose prose-sm max-w-none text-muted-foreground">
         <p>The following are standard assumptions and conditions and apply unless stated otherwise in the SOW above.</p>
         <ul>
+            <li>Payment terms are 30 days unless stated otherwise.</li>
+            <li>Quotation is valid for 14 days unless stated otherwise.</li>
             <li>Pricing and availability on quotes subject to change without notice.</li>
             <li>Quotations are not an offer to sell. Symtech reserves the right to correct errors on quotes where appliable.</li>
             <li>Errors and omissions are excluded.</li>
@@ -19,7 +21,11 @@ export function GeneralConditions() {
             <li>Should material or labour costs increase by more than 5% during the term of the agreement or impacted based on local law and legislation, the items impacted may be updated accordingly to reflect the spirit of the contact.</li>
             <li>Acceptance of this quotation permits Symtech to use Symtech personnel and or Symtech Affiliate personnel to perform the scope of work on behalf of the purchaser.</li>
             <li>Symtech reserves the right to modify travel costs in the event of a travel restrictions issued by any level of Government, Federal, Provincial, Municipal or other limiting travel whether it be interprovincial or otherwise.</li>
-      <li>Acceptance and or receipt of this quote acknowledges that the content is under the NDA signed between the recipient company and Symtech, and that the contents of this quote include intellectual property owned by Symtech and may not be shared with a third party without Symtech’s express permission.</li>
+            <li>Acceptance and or receipt of this quote acknowledges that the content is under the NDA signed between the recipient company and Symtech, and that the contents of this quote include intellectual property owned by Symtech and may not be shared with a third party without Symtech’s express permission.</li>
+            <li>If a site visit cancellation is received with less than 48 hours’ notice and after the Symtech technician has been scheduled, a 4-hour minimum charge will apply per tech (per hour billing), plus the cost of any rental equipment and cost of travel when applicable. If notice is given with more than 48 hours’ notice no cost will apply.</li>
+            <li>Projects may not be cancelled upon purchase order without payment in full.</li>
+            <li><strong>Tariffs and Government-Imposed Taxes Clause:</strong> This quotation or proposal does not account for any tariffs, duties, or other government-imposed taxes or fees that may be enacted after the date of this quotation or proposal. In the event that such measures are implemented, any resulting increases in costs plus applicable taxes will be added to the final amount due under this quotation or proposal, in accordance with applicable laws and regulations.</li>
+            <li>Symtech reserves the right to progress invoice.</li>
     </ul>
     </div>
   );
