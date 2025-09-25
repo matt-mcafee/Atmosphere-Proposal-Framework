@@ -116,13 +116,13 @@ export function ProposalFramework() {
   
   const handleChallenge = async () => {
     if (!userQuery.trim() || !recommendation) return;
-  
+
     const currentTurn: ConversationTurn = { role: 'user', content: userQuery };
     const newConversation = [...conversation, currentTurn];
     setConversation(newConversation);
     setUserQuery('');
     setIsConversing(true);
-  
+
     try {
       const input: ChallengeRecommendationInput = {
         ...getContextForAI(),
@@ -131,10 +131,9 @@ export function ProposalFramework() {
       const result: ChallengeRecommendationOutput = await challengeRecommendation(input);
       const aiTurn: ConversationTurn = { role: 'model', content: result.response };
       setConversation([...newConversation, aiTurn]);
-  
+
       if (result.updatedConfig) {
-        const updatedCostConfig = { ...costConfig, ...result.updatedConfig };
-        setCostConfig(updatedCostConfig);
+        setCostConfig(prev => ({ ...prev, ...result.updatedConfig }));
         toast({
           title: 'Configuration Updated',
           description: 'The project configuration has been updated based on your request.',
@@ -165,6 +164,8 @@ export function ProposalFramework() {
       newProjectInfo.client = data.clientName;
        if (data.clientName.toLowerCase().trim() === 'equinix') {
         setUseMSA(true);
+      } else {
+        setUseMSA(false);
       }
     }
     setProjectInfo(newProjectInfo);
