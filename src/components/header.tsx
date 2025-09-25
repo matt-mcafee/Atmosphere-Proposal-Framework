@@ -11,7 +11,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Logo className="h-6 w-auto text-primary" />
             <span className="font-bold font-headline sm:inline-block">
-              Ascension Engine
+              Symtech Ascension Engine
             </span>
           </Link>
         </div>

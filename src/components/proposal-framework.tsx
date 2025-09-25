@@ -77,8 +77,11 @@ export function ProposalFramework() {
     <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold font-headline tracking-tight sm:text-5xl">
-          Ascension Engine Proposal Generation Environment
+          Symtech Ascension Engine
         </h1>
+        <p className="mt-2 text-lg text-muted-foreground sm:text-xl">
+          Proposal Generation Environment
+        </p>
         <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:mt-4">
           Build powerful, data-driven proposals with AI-assisted estimation.
         </p>
