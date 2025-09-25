@@ -7,6 +7,8 @@ import type { EstimateTravelCostsOutput } from '@/ai/flows/estimate-travel-costs
 import { estimateTravelCosts } from '@/ai/flows/estimate-travel-costs';
 import type { AiPoweredRecommendationOutput } from '@/ai/flows/ai-powered-recommendation';
 import { aiPoweredRecommendation } from '@/ai/flows/ai-powered-recommendation';
+import { challengeRecommendation, type ChallengeRecommendationInput, type ConversationTurn } from '@/ai/flows/challenge-recommendation-flow';
+
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -16,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText, AlertTriangle, FolderArchive } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText, AlertTriangle, FolderArchive, Send, User, Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
@@ -24,6 +26,7 @@ import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 type ProjectInfo = { name: string; client: string; date: string; };
 type CostConfig = { onSiteLabor: number; livingExpenses: number; pmOverhead: number; travelHours: number; parkingCost: number; };
 type StrategyAnalysis = { a: string; b: string; };
+
 
 export function ProposalFramework() {
   const { toast } = useToast();
@@ -34,20 +37,40 @@ export function ProposalFramework() {
   const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, livingExpenses: 330, pmOverhead: 12.5, travelHours: 2, parkingCost: 25 });
   const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis>({ a: 'Strategy A involves an accelerated deployment model, prioritizing speed by deploying multiple technician teams simultaneously across different regions. This approach aims to reduce the overall project timeline but may incur higher logistical and travel costs due to less optimized routing.', b: 'Strategy B focuses on a logistical cluster deployment, where a single technician or team is assigned to a geographical province or cluster of locations. This strategy optimizes travel routes and minimizes overnight stays, aiming for maximum cost-efficiency, potentially at the expense of a longer project duration.' });
   const [isRecommending, setIsRecommending] = useState(false);
+  const [conversation, setConversation] = useState<ConversationTurn[]>([]);
+  const [userQuery, setUserQuery] = useState('');
+  const [isConversing, setIsConversing] = useState(false);
 
   const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => setProjectInfo({ ...projectInfo, [e.target.name]: e.target.value });
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
 
-  const handleGetRecommendation = async () => {
-    setIsRecommending(true);
+  const getContextForAI = () => {
     const clientData = "Client has a standard pricing agreement with tiered discounts.";
     const vendorQuotes = "Primary vendor offers a 5% discount on bulk orders over $50,000.";
     const logisticalConfigurations = travelCosts?.optimalRouteSummary || "Standard logistics to be applied based on location density.";
     const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%. Travel: ${costConfig.travelHours} hours. Parking: $${costConfig.parkingCost}.`;
+    const bomData = bom?.billOfMaterials || "No Bill of Materials provided.";
+
+    return {
+      clientData,
+      vendorQuotes,
+      logisticalConfigurations,
+      costModelConfigurations,
+      strategyAAnalysis: strategyAnalysis.a,
+      strategyBAnalysis: strategyAnalysis.b,
+      billOfMaterials: bomData,
+      initialRecommendation: recommendation?.recommendation || "No initial recommendation available.",
+    };
+  };
+
+  const handleGetRecommendation = async () => {
+    setIsRecommending(true);
+    setConversation([]); // Reset conversation when getting a new recommendation
+    const context = getContextForAI();
 
     try {
-      const result = await aiPoweredRecommendation({ clientData, vendorQuotes, logisticalConfigurations, costModelConfigurations, strategyAAnalysis: strategyAnalysis.a, strategyBAnalysis: strategyAnalysis.b });
+      const result = await aiPoweredRecommendation(context);
       setRecommendation(result);
       toast({ title: 'Success', description: 'AI recommendation has been generated.' });
     } catch (error) {
@@ -57,6 +80,35 @@ export function ProposalFramework() {
       setIsRecommending(false);
     }
   };
+
+  const handleChallenge = async () => {
+    if (!userQuery.trim() || !recommendation) return;
+
+    const currentTurn: ConversationTurn = { role: 'user', content: userQuery };
+    const newConversation = [...conversation, currentTurn];
+    setConversation(newConversation);
+    setUserQuery('');
+    setIsConversing(true);
+
+    const input: ChallengeRecommendationInput = {
+      ...getContextForAI(),
+      conversationHistory: newConversation
+    };
+
+    try {
+      const result = await challengeRecommendation(input);
+      const aiTurn: ConversationTurn = { role: 'model', content: result.response };
+      setConversation([...newConversation, aiTurn]);
+    } catch (error) {
+      console.error("Failed to get challenge response:", error);
+      const errorTurn: ConversationTurn = { role: 'model', content: 'Sorry, I encountered an error. Please try again.' };
+      setConversation([...newConversation, errorTurn]);
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not get a response. Please check your API key and try again.' });
+    } finally {
+      setIsConversing(false);
+    }
+  };
+
 
   const handleSherpaSuccess = (data: SherpaOutput) => {
     const newProjectInfo = { ...projectInfo };
@@ -81,9 +133,6 @@ export function ProposalFramework() {
         </h1>
         <p className="mt-2 text-lg text-muted-foreground sm:text-xl">
           Proposal Generation Environment
-        </p>
-        <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:mt-4">
-          Build powerful, data-driven proposals with AI-assisted estimation.
         </p>
       </div>
 
@@ -153,7 +202,51 @@ export function ProposalFramework() {
             <AccordionContent className="pt-4 space-y-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="space-y-2"><Label htmlFor="strategy-a" className="text-lg font-semibold">Strategy A Analysis</Label><Textarea id="strategy-a" name="a" value={strategyAnalysis.a} onChange={handleStrategyAnalysisChange} rows={8} /></div><div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B Analysis</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div></div>
                  <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
-                {recommendation && <Card className="bg-primary/5 border-primary/20"><CardHeader><CardTitle className="flex items-center gap-2 text-primary"><ShipWheel /> AI-Powered Recommendation</CardTitle></CardHeader><CardContent className="space-y-4"><blockquote className="border-l-4 border-accent pl-4 italic">"{recommendation.recommendation}"</blockquote><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4"><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Recommended Strategy</p><p className="text-xl font-bold font-headline">{recommendation.recommendedStrategy}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Estimated Cost</p><p className="text-xl font-bold font-headline">${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Key Deciding Factors</p><p className="text-base">{recommendation.keyFactors}</p></div></div></CardContent></Card>}
+                {recommendation && (
+                    <div className="space-y-6">
+                        <Card className="bg-primary/5 border-primary/20"><CardHeader><CardTitle className="flex items-center gap-2 text-primary"><ShipWheel /> AI-Powered Recommendation</CardTitle></CardHeader><CardContent className="space-y-4"><blockquote className="border-l-4 border-accent pl-4 italic">"{recommendation.recommendation}"</blockquote><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4"><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Recommended Strategy</p><p className="text-xl font-bold font-headline">{recommendation.recommendedStrategy}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Estimated Cost</p><p className="text-xl font-bold font-headline">${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Key Deciding Factors</p><p className="text-base">{recommendation.keyFactors}</p></div></div></CardContent></Card>
+                        
+                        <Card>
+                            <CardHeader><CardTitle>Challenge the Recommendation</CardTitle><CardDescription>Ask follow-up questions to validate the proposal.</CardDescription></CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
+                                    {conversation.map((turn, index) => (
+                                        <div key={index} className={`flex items-start gap-3 ${turn.role === 'user' ? 'justify-end' : ''}`}>
+                                            {turn.role === 'model' && <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot /></div>}
+                                            <div className={`rounded-lg p-3 max-w-[80%] ${turn.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                                <p className="text-sm whitespace-pre-wrap">{turn.content}</p>
+                                            </div>
+                                            {turn.role === 'user' && <div className="p-2 rounded-full bg-muted text-foreground"><User /></div>}
+                                        </div>
+                                    ))}
+                                    {isConversing && (
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot /></div>
+                                            <div className="rounded-lg p-3 bg-muted flex items-center space-x-2">
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <span className="text-sm">Thinking...</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-2 pt-4">
+                                    <Textarea 
+                                        placeholder="e.g., Are you sure the labor hours are correct for this type of installation?"
+                                        value={userQuery}
+                                        onChange={(e) => setUserQuery(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChallenge(); }}}
+                                        rows={1}
+                                        disabled={isConversing}
+                                    />
+                                    <Button onClick={handleChallenge} disabled={!userQuery.trim() || isConversing}>
+                                        <Send className="h-4 w-4" />
+                                        <span className="sr-only">Send</span>
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
             </AccordionContent>
         </AccordionItem>
 
