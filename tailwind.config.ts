@@ -17,19 +17,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
         headline: ['var(--font-oswald)', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
-        'background-start': 'var(--background-start)',
-        'background-end': 'var(--background-end)',
-        'accent-primary': 'var(--accent-primary)',
-        'accent-secondary': 'var(--accent-secondary)',
-        'text-primary': 'var(--text-primary)',
-        'text-secondary': 'var(--text-secondary)',
-        'card-bg': 'var(--card-bg)',
-        'border-color': 'var(--border-color)',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

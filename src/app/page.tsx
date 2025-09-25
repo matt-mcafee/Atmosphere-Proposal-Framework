@@ -6,14 +6,14 @@ export default function Home() {
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 font-headline">
       <header className="text-center my-12">
-        <Aperture className="mx-auto h-20 w-20 accent-glow" />
+        <Aperture className="mx-auto h-20 w-20 text-primary" />
         <h1 className="text-5xl md:text-7xl font-normal tracking-wider uppercase mt-4">
-          Symtech <span className="accent-glow">Apex</span>
+          Symtech <span className="text-primary">Apex</span>
         </h1>
-        <p className="text-xl md:text-2xl text-text-secondary mt-4">
+        <p className="text-xl md:text-2xl text-muted-foreground mt-4">
           Your Operating System for Peak Performance
         </p>
-        <p className="text-lg text-text-secondary mt-4 max-w-3xl mx-auto">
+        <p className="text-lg text-muted-foreground mt-4 max-w-3xl mx-auto">
           An integrated ecosystem of tools and strategies designed to elevate
           client partnerships from simple transactions to strategic alliances.
         </p>
@@ -21,9 +21,9 @@ export default function Home() {
 
       <section className="my-24">
         <h2 className="section-title">
-          THE <span className="accent-glow">APEX TOOLBELT</span>
+          THE <span className="text-primary">APEX TOOLBELT</span>
         </h2>
-        <p className="text-center text-lg text-text-secondary -mt-8 mb-12 max-w-3xl mx-auto">
+        <p className="text-center text-lg text-muted-foreground -mt-8 mb-12 max-w-3xl mx-auto">
           The right gear for every stage of the climb. Each tool is designed to
           work in concert, providing a unified approach to client success.
         </p>
@@ -31,30 +31,30 @@ export default function Home() {
           <div className="glass-card p-6 flex flex-col">
             <div className="flex-shrink-0">
               <div className="flex items-center mb-3">
-                <Map className="w-10 h-10 mr-4 accent-glow" />
+                <Map className="w-10 h-10 mr-4 text-primary" />
                 <h3 className="text-2xl font-medium">The Ascent Playbook</h3>
               </div>
-              <p className="text-text-secondary text-lg mb-4">
+              <p className="text-muted-foreground text-lg mb-4">
                 Your Guide to Strategic Account Engagement
               </p>
             </div>
             <div className="flex-grow">
-              <p className="text-text-secondary text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 The core methodology defining the four-stage journey of client
                 growth. Move from reactive to proactive guidance with a clear,
                 repeatable framework for success.
               </p>
-              <ul className="text-sm space-y-2 text-text-secondary">
+              <ul className="text-sm space-y-2 text-muted-foreground">
                 <li className="flex items-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-accent-primary shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                   Provides a holistic account view.
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-accent-primary shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                   Ensures strategic alignment across all teams.
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-accent-primary shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                   Deepens client loyalty and increases predictability.
                 </li>
               </ul>
@@ -64,30 +64,30 @@ export default function Home() {
           <div className="glass-card p-6 flex flex-col">
             <div className="flex-shrink-0">
               <div className="flex items-center mb-3">
-                <Rocket className="w-10 h-10 mr-4 accent-glow" />
+                <Rocket className="w-10 h-10 mr-4 text-primary" />
                 <h3 className="text-2xl font-medium">The Ascension Engine</h3>
               </div>
-              <p className="text-text-secondary text-lg mb-4">
+              <p className="text-muted-foreground text-lg mb-4">
                 The Proposal & Estimating Powerhouse
               </p>
             </div>
             <div className="flex-grow">
-              <p className="text-text-secondary text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 The dynamic tool that ignites the client journey. Build, refine,
                 and launch compelling proposals that secure the resources needed
                 for a successful expedition.
               </p>
-              <ul className="text-sm space-y-2 text-text-secondary">
+              <ul className="text-sm space-y-2 text-muted-foreground">
                 <li className="flex items-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-accent-primary shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                   Automates MSA and service proposal creation.
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-accent-primary shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                   Models project scope and trajectory accurately.
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-accent-primary shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                   Frames our value with powerful, data-driven narratives.
                 </li>
               </ul>
@@ -96,7 +96,7 @@ export default function Home() {
         </div>
          <div className="mt-12 text-center">
             <Link href="/proposal" passHref>
-                <button className="bg-accent-primary/20 text-accent-primary border-2 border-accent-primary px-12 py-4 rounded-lg font-medium hover:bg-accent-primary hover:text-background-start transition-all duration-300 text-lg">
+                <button className="bg-primary/20 text-primary border-2 border-primary px-12 py-4 rounded-lg font-medium hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-lg">
                     Enter the Ascension Engine
                 </button>
             </Link>
@@ -105,9 +105,9 @@ export default function Home() {
 
       <section className="my-24">
         <h2 className="section-title">
-          THE <span className="accent-glow">ASCENT JOURNEY</span>
+          THE <span className="text-primary">ASCENT JOURNEY</span>
         </h2>
-        <p className="text-center text-lg text-text-secondary -mt-8 mb-12 max-w-3xl mx-auto">
+        <p className="text-center text-lg text-muted-foreground -mt-8 mb-12 max-w-3xl mx-auto">
           The core four-stage methodology defined in{' '}
           <strong>The Ascent Playbook</strong>.
         </p>
@@ -123,14 +123,14 @@ export default function Home() {
                 <stop
                   offset="0%"
                   style={{
-                    stopColor: 'var(--accent-primary)',
+                    stopColor: 'hsl(var(--primary))',
                     stopOpacity: 1,
                   }}
                 />
                 <stop
                   offset="100%"
                   style={{
-                    stopColor: 'var(--accent-secondary)',
+                    stopColor: 'hsl(var(--secondary))',
                     stopOpacity: 1,
                   }}
                 />
@@ -150,16 +150,16 @@ export default function Home() {
               <div className="glass-card p-4 flex-1 mr-4">
                 <h3 className="text-xl font-medium">
                   1. The Ridge{' '}
-                  <span className="text-sm font-light text-text-secondary">
+                  <span className="text-sm font-light text-muted-foreground">
                     / Initial Project
                   </span>
                 </h3>
-                <p className="text-text-secondary mt-1 text-sm">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Establish a beachhead with flawless execution, proving our
                   immediate value.
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-accent-primary/20 text-accent-primary border-2 border-accent-primary shadow-lg shadow-accent-primary/20">
+              <div className="p-3 rounded-full bg-primary/20 text-primary border-2 border-primary shadow-lg shadow-primary/20">
                 <Flag className="w-8 h-8" />
               </div>
             </div>
@@ -167,15 +167,15 @@ export default function Home() {
               <div className="glass-card p-4 flex-1 ml-4">
                 <h3 className="text-xl font-medium text-right">
                   2. The Slope{' '}
-                  <span className="text-sm font-light text-text-secondary">
+                  <span className="text-sm font-light text-muted-foreground">
                     / Expanding Trust
                   </span>
                 </h3>
-                <p className="text-text-secondary mt-1 text-sm text-right">
+                <p className="text-muted-foreground mt-1 text-sm text-right">
                   Expand our influence, moving from provider to thought leader.
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-accent-primary/20 text-accent-primary border-2 border-accent-primary shadow-lg shadow-accent-primary/20">
+              <div className="p-3 rounded-full bg-primary/20 text-primary border-2 border-primary shadow-lg shadow-primary/20">
                 <TrendingUp className="w-8 h-8" />
               </div>
             </div>
@@ -183,16 +183,16 @@ export default function Home() {
               <div className="glass-card p-4 flex-1 mr-4">
                 <h3 className="text-xl font-medium">
                   3. The Summit{' '}
-                  <span className="text-sm font-light text-text-secondary">
+                  <span className="text-sm font-light text-muted-foreground">
                     / Strategic Partner
                   </span>
                 </h3>
-                <p className="text-text-secondary mt-1 text-sm">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Become a co-creator of the client's future, essential to their
                   long-term success.
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-accent-primary/20 text-accent-primary border-2 border-accent-primary shadow-lg shadow-accent-primary/20">
+              <div className="p-3 rounded-full bg-primary/20 text-primary border-2 border-primary shadow-lg shadow-primary/20">
                 <MountainSnow className="w-8 h-8" />
               </div>
             </div>
@@ -200,16 +200,16 @@ export default function Home() {
               <div className="glass-card p-4 flex-1 ml-4">
                 <h3 className="text-xl font-medium text-right">
                   4. The Atmosphere{' '}
-                  <span className="text-sm font-light text-text-secondary">
+                  <span className="text-sm font-light text-muted-foreground">
                     / Fully Integrated
                   </span>
                 </h3>
-                <p className="text-text-secondary mt-1 text-sm text-right">
+                <p className="text-muted-foreground mt-1 text-sm text-right">
                   Client is fully integrated into our ecosystem, leveraging our
                   cloud and services.
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-accent-primary/20 text-accent-primary border-2 border-accent-primary shadow-lg shadow-accent-primary/20">
+              <div className="p-3 rounded-full bg-primary/20 text-primary border-2 border-primary shadow-lg shadow-primary/20">
                 <Rocket className="w-8 h-8" />
               </div>
             </div>
@@ -218,10 +218,10 @@ export default function Home() {
       </section>
 
       <footer className="text-center my-12 pt-8 border-t border-gray-200/10">
-        <h3 className="text-2xl font-medium text-text-secondary">
+        <h3 className="text-2xl font-medium text-muted-foreground">
           Reach the Peak.
         </h3>
-        <p className="text-4xl font-normal accent-glow mt-1">
+        <p className="text-4xl font-normal text-primary mt-1">
           Then Ascend Further.
         </p>
       </footer>

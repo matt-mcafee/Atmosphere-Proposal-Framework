@@ -328,6 +328,10 @@ export function ProposalFramework() {
                     <AccordionTrigger className="text-xl font-headline">4. Final Proposal Summary</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-4">
                         {(() => {
+                           if (!recommendation) {
+                            return <div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the proposal summary.</div>;
+                           }
+
                            const numLocations = travelCosts?.numberOfLocations || 0;
                            const onsiteLaborCost = costConfig.onSiteLabor * costConfig.technicianRate;
                            const travelCost = travelCosts && numLocations > 0 ? (travelCosts.totalTravelCost / numLocations) : 0;
@@ -338,10 +342,6 @@ export function ProposalFramework() {
                            const totalSubtotal = perSiteSubtotal * numLocations;
                            const pmOverheadCost = totalSubtotal * (costConfig.pmOverhead / 100);
                            const grandTotal = totalSubtotal + pmOverheadCost;
-
-                           if (!recommendation) {
-                            return <div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the proposal summary.</div>;
-                           }
 
                            return (
                             <>
@@ -414,7 +414,7 @@ export function ProposalFramework() {
                                 </Card>
                                 )}
                             </>
-                           )
+                           );
                         })()}
                         
                         {bom && <Card><CardHeader><CardTitle className="flex items-center gap-2"><HardHat /> Bill of Materials</CardTitle></CardHeader><CardContent><pre className="p-4 bg-muted rounded-md text-sm whitespace-pre-wrap font-mono">{bom.billOfMaterials}</pre></CardContent></Card>}
