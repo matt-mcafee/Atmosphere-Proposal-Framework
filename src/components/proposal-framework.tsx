@@ -31,9 +31,9 @@ type CanvasInputs = { scope: string; assumptions: string; risks: string; knowns:
 
 export function ProposalFramework() {
   const { toast } = useToast();
-  const [projectInfo, setProjectInfo] = useState<ProjectInfo>({ 
-    name: 'Walmart National Hands and Feet Support', 
-    client: 'Kyndryl Canada', 
+  const [projectInfo, setProjectInfo] = useState<ProjectInfo>({
+    name: 'Walmart National Hands and Feet Support',
+    client: 'Kyndryl Canada',
     date: new Date().toISOString().split('T')[0],
     projectId: 'KD-WM-2025',
     contact: 'Cameron Dailey',
@@ -69,7 +69,7 @@ export function ProposalFramework() {
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCostConfig(prev => ({ ...prev, [e.target.name]: parseFloat(e.target.value) || 0 }));
   };
-  
+
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStrategyAnalysis(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -114,7 +114,7 @@ export function ProposalFramework() {
       setIsRecommending(false);
     }
   };
-  
+
   const handleChallenge = async () => {
     if (!userQuery.trim() || !recommendation) return;
 
@@ -174,7 +174,7 @@ export function ProposalFramework() {
 
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
-  
+
   return (
     <div className="canvas-container max-w-7xl mx-auto my-8 bg-card text-card-foreground rounded-lg shadow-lg overflow-hidden">
         <div className="canvas-header p-4 px-6 text-2xl font-bold">
@@ -288,7 +288,7 @@ export function ProposalFramework() {
                             <div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B: Optimized Logistical Deployment</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div>
                         </div>
                         <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 animate-spin" /> : <Lightbulb className="mr-2" />}Generate AI Recommendation</Button></div>
-                    
+
                         {recommendation && (
                             <Card className="mt-6">
                                 <CardHeader><CardTitle>Talk to Ascension Engine</CardTitle><CardDescription>Ask follow-up questions to validate the proposal or request changes.</CardDescription></CardHeader>
@@ -354,7 +354,7 @@ export function ProposalFramework() {
                                         <strong className="font-bold">Overall Recommendation:</strong> For the lowest total cost, <strong>{recommendation.recommendedStrategy}</strong> is recommended. Key factors include: {recommendation.keyFactors}.
                                     </div>
                                 </div>
-                                
+
                                 {travelCosts && (
                                 <Card>
                                   <CardHeader><CardTitle>Cost Breakdown</CardTitle></CardHeader>
@@ -416,7 +416,7 @@ export function ProposalFramework() {
                             </>
                            );
                         })()}
-                        
+
                         {bom && <Card><CardHeader><CardTitle className="flex items-center gap-2"><HardHat /> Bill of Materials</CardTitle></CardHeader><CardContent><pre className="p-4 bg-muted rounded-md text-sm whitespace-pre-wrap font-mono">{bom.billOfMaterials}</pre></CardContent></Card>}
                         {travelCosts && <Card><CardHeader><CardTitle className="flex items-center gap-2"><LocateFixed /> Travel Cost Estimation</CardTitle></CardHeader><CardContent><p className="font-medium text-muted-foreground">Optimal Route Summary</p><p>{travelCosts.optimalRouteSummary}</p></CardContent></Card>}
                     </AccordionContent>
