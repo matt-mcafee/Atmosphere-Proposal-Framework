@@ -21,7 +21,7 @@ import { ModuleCard } from '@/components/module-card';
 import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send, Sparkles, Milestone, FileQuestion, ShieldAlert, ClipboardCheck, Link, FileCog } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
-import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
+import type { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 import { GeneralConditions } from './general-conditions';
 
 type ProjectInfo = { name: string; client: string; date: string; projectId: string; contact: string; version: string; };
@@ -159,18 +159,17 @@ export function ProposalFramework() {
 
   const handleSherpaSuccess = (data: SherpaOutput) => {
     const newProjectInfo = { ...projectInfo };
-    if (data.projectName) newProjectInfo.name = data.projectName;
+    if (data.projectName) {
+      newProjectInfo.name = data.projectName;
+    }
     if (data.clientName) {
       newProjectInfo.client = data.clientName;
-       if (data.clientName.toLowerCase().trim() === 'equinix') {
-        setUseMSA(true);
-      } else {
-        setUseMSA(false);
-      }
+      setUseMSA(data.clientName.toLowerCase().trim() === 'equinix');
     }
     setProjectInfo(newProjectInfo);
     toast({ title: 'Sherpa has updated the project details.' });
   };
+  
 
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
