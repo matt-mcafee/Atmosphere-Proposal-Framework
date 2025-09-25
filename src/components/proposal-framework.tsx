@@ -174,19 +174,7 @@ export function ProposalFramework() {
 
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
-
-  const numLocations = travelCosts?.numberOfLocations || 0;
-  const onsiteLaborCost = costConfig.onSiteLabor * costConfig.technicianRate;
-  const travelCost = travelCosts && numLocations > 0 ? (travelCosts.totalTravelCost / numLocations) : 0;
-  const livingExpensesCost = travelCosts && numLocations > 0 ? (travelCosts.totalLivingExpenses / numLocations) : 0;
-  const mealsCost = travelCosts && numLocations > 0 ? (travelCosts.totalOvernightStays / numLocations) * costConfig.mealsCost : 0;
-  const parkingCost = travelCosts && numLocations > 0 ? (travelCosts.totalOvernightStays / numLocations) * costConfig.parking : 0;
-  const perSiteSubtotal = onsiteLaborCost + travelCost + livingExpensesCost + mealsCost + parkingCost;
-  const totalSubtotal = perSiteSubtotal * numLocations;
-  const pmOverheadCost = totalSubtotal * (costConfig.pmOverhead / 100);
-  const grandTotal = totalSubtotal + pmOverheadCost;
-
-
+  
   return (
     <div className="canvas-container max-w-7xl mx-auto my-8 bg-card text-card-foreground rounded-lg shadow-lg overflow-hidden">
         <div className="canvas-header p-4 px-6 text-2xl font-bold">
@@ -245,7 +233,7 @@ export function ProposalFramework() {
                                 <div className="space-y-1"><Label htmlFor="technicianRate">Technician Rate ($/hour)</Label><Input id="technicianRate" name="technicianRate" type="number" value={costConfig.technicianRate} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="livingExpenses">Living Expenses ($/night)</Label><Input id="livingExpenses" name="livingExpenses" type="number" value={costConfig.livingExpenses} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="mealsCost">Meals & Incidentals ($/day)</Label><Input id="mealsCost" name="mealsCost" type="number" value={costConfig.mealsCost} onChange={handleCostConfigChange} /></div>
-                                <div className="space-y-1"><Label htmlFor="travelHoursMatrix">Travel (hours/100km)</Label><Input id="travelHoursMatrix" name="travelHoursMatrix" type="number" value={costConfig.travelHoursMatrix} onChange={handleCostConfigChange} /></div>
+                                <div className="spacey-1"><Label htmlFor="travelHoursMatrix">Travel (hours/100km)</Label><Input id="travelHoursMatrix" name="travelHoursMatrix" type="number" value={costConfig.travelHoursMatrix} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="parking">Parking ($/day)</Label><Input id="parking" name="parking" type="number" value={costConfig.parking} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="pmOverhead">PM Overhead (%)</Label><Input id="pmOverhead" name="pmOverhead" type="number" value={costConfig.pmOverhead} onChange={handleCostConfigChange} /></div>
                             </CardContent>
@@ -339,7 +327,23 @@ export function ProposalFramework() {
                 <AccordionItem value="item-4">
                     <AccordionTrigger className="text-xl font-headline">4. Final Proposal Summary</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-4">
-                        {recommendation ? (
+                        {(() => {
+                           const numLocations = travelCosts?.numberOfLocations || 0;
+                           const onsiteLaborCost = costConfig.onSiteLabor * costConfig.technicianRate;
+                           const travelCost = travelCosts && numLocations > 0 ? (travelCosts.totalTravelCost / numLocations) : 0;
+                           const livingExpensesCost = travelCosts && numLocations > 0 ? (travelCosts.totalLivingExpenses / numLocations) : 0;
+                           const mealsCost = travelCosts && numLocations > 0 ? (travelCosts.totalOvernightStays / numLocations) * costConfig.mealsCost : 0;
+                           const parkingCost = travelCosts && numLocations > 0 ? (travelCosts.totalOvernightStays / numLocations) * costConfig.parking : 0;
+                           const perSiteSubtotal = onsiteLaborCost + travelCost + livingExpensesCost + mealsCost + parkingCost;
+                           const totalSubtotal = perSiteSubtotal * numLocations;
+                           const pmOverheadCost = totalSubtotal * (costConfig.pmOverhead / 100);
+                           const grandTotal = totalSubtotal + pmOverheadCost;
+
+                           if (!recommendation) {
+                            return <div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the proposal summary.</div>;
+                           }
+
+                           return (
                             <>
                                 <div className="space-y-4">
                                     <h2 className="text-2xl font-bold text-primary border-b-2 border-primary/30 pb-2">EXECUTIVE SUMMARY</h2>
@@ -409,11 +413,10 @@ export function ProposalFramework() {
                                   </CardContent>
                                 </Card>
                                 )}
-
                             </>
-                        ) : (
-                            <div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the proposal summary.</div>
-                        )}
+                           )
+                        })()}
+                        
                         {bom && <Card><CardHeader><CardTitle className="flex items-center gap-2"><HardHat /> Bill of Materials</CardTitle></CardHeader><CardContent><pre className="p-4 bg-muted rounded-md text-sm whitespace-pre-wrap font-mono">{bom.billOfMaterials}</pre></CardContent></Card>}
                         {travelCosts && <Card><CardHeader><CardTitle className="flex items-center gap-2"><LocateFixed /> Travel Cost Estimation</CardTitle></CardHeader><CardContent><p className="font-medium text-muted-foreground">Optimal Route Summary</p><p>{travelCosts.optimalRouteSummary}</p></CardContent></Card>}
                     </AccordionContent>
