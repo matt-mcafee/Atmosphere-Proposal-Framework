@@ -7,7 +7,8 @@ import type { EstimateTravelCostsOutput } from '@/ai/flows/estimate-travel-costs
 import { estimateTravelCosts } from '@/ai/flows/estimate-travel-costs';
 import type { AiPoweredRecommendationOutput } from '@/ai/flows/ai-powered-recommendation';
 import { aiPoweredRecommendation } from '@/ai/flows/ai-powered-recommendation';
-import { challengeRecommendation, type ChallengeRecommendationInput, type ConversationTurn } from '@/ai/flows/challenge-recommendation-flow';
+import { challengeRecommendation } from '@/ai/flows/challenge-recommendation-flow';
+import type { ChallengeRecommendationInput, ConversationTurn } from '@/ai/schemas/challenge-recommendation-schema';
 
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
