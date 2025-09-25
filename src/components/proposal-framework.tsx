@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText, AlertTriangle } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText, AlertTriangle, FolderArchive } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
@@ -121,6 +121,17 @@ export function ProposalFramework() {
                     <ModuleCard id="travel-upload" title="Travel Logistics" description="Upload a location list (CSV/XLS) for cost estimation." cta="Estimate Travel" onUpload={estimateTravelCostsAction} onSuccess={(result) => { setTravelCosts(result); toast({ title: 'Travel Costs Estimated' }); }} acceptedTypes=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                     <ModuleCard id="vendor-upload" title="Vendor Quotes" description="Import vendor quotes for cost calculations." cta="Import Quotes" onUpload={async () => {}} onSuccess={() => toast({ title: 'Note', description: 'Vendor quote parsing coming soon.' })} acceptedTypes="application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                     <ModuleCard id="client-upload" title="Client Agreements" description="Import price files for resale values." cta="Import Agreement" onUpload={async () => {}} onSuccess={() => toast({ title: 'Note', description: 'Client agreement parsing coming soon.' })} acceptedTypes="application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                </div>
+                <div className="mt-6">
+                  <ModuleCard 
+                    id="project-docs-upload" 
+                    title="Project Documents" 
+                    description="Upload drawings, specs, floor plans, and other relevant project files." 
+                    cta="Upload Project Files" 
+                    onUpload={async () => {}} 
+                    onSuccess={() => toast({ title: 'Note', description: 'Document storage coming soon.' })} 
+                    acceptedTypes=".pdf,.doc,.docx,.xls,.xlsx,image/*" 
+                  />
                 </div>
             </AccordionContent>
         </AccordionItem>
