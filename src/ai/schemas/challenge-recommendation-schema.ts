@@ -20,6 +20,12 @@ export const ChallengeRecommendationInputSchema = z.object({
   billOfMaterials: z.string(),
   initialRecommendation: z.string(),
   conversationHistory: z.array(ConversationTurnSchema),
+  scope: z.string(),
+  assumptions: z.string(),
+  risks: z.string(),
+  knowns: z.string(),
+  dependencies: z.string(),
+  estimate: z.string(),
 });
 export type ChallengeRecommendationInput = z.infer<typeof ChallengeRecommendationInputSchema>;
 

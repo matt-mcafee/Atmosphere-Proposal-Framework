@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Oswald } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
-const oswald = Oswald({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500'],
-  variable: '--font-oswald',
+  variable: '--font-inter',
 });
 
 
@@ -21,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${oswald.variable}`}>
+    <html lang="en" className={`dark ${inter.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send, Sparkles } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send, Sparkles, Milestone, FileQuestion, ShieldAlert, ClipboardCheck, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
@@ -26,6 +26,7 @@ import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 type ProjectInfo = { name: string; client: string; date: string; projectId: string; contact: string; version: string; };
 type CostConfig = { onSiteLabor: number; technicianRate: number; livingExpenses: number; pmOverhead: number; travelHoursMatrix: number, parking: number, mealsCost: number };
 type StrategyAnalysis = { a: string; b: string; };
+type CanvasInputs = { scope: string; assumptions: string; risks: string; knowns: string; dependencies: string; estimate: string; };
 
 export function ProposalFramework() {
   const { toast } = useToast();
@@ -46,10 +47,20 @@ export function ProposalFramework() {
   const [conversation, setConversation] = useState<ConversationTurn[]>([]);
   const [userQuery, setUserQuery] = useState('');
   const [isConversing, setIsConversing] = useState(false);
+  const [canvasInputs, setCanvasInputs] = useState<CanvasInputs>({
+    scope: 'Deliverables: \n"Done" Criteria: \nIn Scope: \nOut of Scope: ',
+    assumptions: 'Team Availability: \nTechnical Assumptions: \nEnvironmental Assumptions: ',
+    risks: 'Technical Risks: \nPersonnel Risks: \nExternal Factors: \nOpen Questions: ',
+    knowns: 'Historical Data: \nTeam Velocity: \nPerformance Metrics: \nConcrete Facts: ',
+    dependencies: 'Internal Teams: \nExternal Parties: \nDecisions: \nSystem Access: ',
+    estimate: 'The Range: \nConfidence Level: \nKey Factors: ',
+  });
 
   const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => setProjectInfo({ ...projectInfo, [e.target.name]: e.target.value });
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
+  const handleCanvasInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setCanvasInputs({ ...canvasInputs, [e.target.name]: e.target.value });
+
 
   const getContextForAI = () => {
     const clientData = `Client: ${projectInfo.client}, Standard pricing agreements apply.`;
@@ -67,6 +78,7 @@ export function ProposalFramework() {
       strategyBAnalysis: strategyAnalysis.b,
       billOfMaterials: bomData,
       initialRecommendation: recommendation?.recommendation || "No initial recommendation available.",
+      ...canvasInputs,
     };
   };
 
@@ -150,7 +162,7 @@ export function ProposalFramework() {
   return (
     <div className="canvas-container max-w-7xl mx-auto my-8 bg-card text-card-foreground rounded-lg shadow-lg overflow-hidden">
         <div className="canvas-header p-4 px-6 text-2xl font-bold">
-            {'███ Estimating Framework Canvas ███'}
+            Estimating Framework Canvas
         </div>
         <div className="toolbar bg-muted p-2 px-6 border-b flex gap-2">
             <Button variant="secondary" onClick={() => window.print()}><Printer className="mr-2"/>Export to PDF</Button>
@@ -212,8 +224,40 @@ export function ProposalFramework() {
                     </AccordionContent>
                 </AccordionItem>
 
+                <AccordionItem value="item-2">
+                    <AccordionTrigger className="text-xl font-headline">2. Estimating Canvas</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-6">
+                        <Card>
+                            <CardHeader><CardTitle className="flex items-center gap-2"><Milestone /> Scope & Boundaries</CardTitle><CardDescription>Define exactly what is included and excluded to prevent scope creep.</CardDescription></CardHeader>
+                            <CardContent><Textarea name="scope" value={canvasInputs.scope} onChange={handleCanvasInputChange} rows={6} placeholder="Deliverables:&#10;\"Done\" Criteria:&#10;In Scope:&#10;Out of Scope:" /></CardContent>
+                        </Card>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><FileQuestion /> Assumptions</CardTitle><CardDescription>List everything you are holding to be true for your estimate to be valid.</CardDescription></CardHeader>
+                                <CardContent><Textarea name="assumptions" value={canvasInputs.assumptions} onChange={handleCanvasInputChange} rows={8} placeholder="Team Availability:&#10;Technical Assumptions:&#10;Environmental Assumptions:"/></CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert /> Risks & Uncertainties</CardTitle><CardDescription>Identify potential problems and unknowns to plan for them.</CardDescription></CardHeader>
+                                <CardContent><Textarea name="risks" value={canvasInputs.risks} onChange={handleCanvasInputChange} rows={8} placeholder="Technical Risks:&#10;Personnel Risks:&#10;External Factors:&#10;Open Questions:"/></CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><ClipboardCheck /> Knowns & Data</CardTitle><CardDescription>Capture the hard facts and concrete data you have available.</CardDescription></CardHeader>
+                                <CardContent><Textarea name="knowns" value={canvasInputs.knowns} onChange={handleCanvasInputChange} rows={8} placeholder="Historical Data:&#10;Team Velocity:&#10;Performance Metrics:&#10;Concrete Facts:"/></CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Link /> Dependencies</CardTitle><CardDescription>List everything this project needs from other teams, people, or systems.</CardDescription></CardHeader>
+                                <CardContent><Textarea name="dependencies" value={canvasInputs.dependencies} onChange={handleCanvasInputChange} rows={8} placeholder="Internal Teams:&#10;External Parties:&#10;Decisions:&#10;System Access:"/></CardContent>
+                            </Card>
+                        </div>
+                         <Card className="bg-green-900/20 border-green-700">
+                            <CardHeader><CardTitle className="text-green-200 flex items-center gap-2">⭐ The Estimate</CardTitle><CardDescription className="text-green-300">After filling the surrounding blocks, formulate your estimate here. It should always be a range that reflects the built-in uncertainty.</CardDescription></CardHeader>
+                            <CardContent><Textarea name="estimate" value={canvasInputs.estimate} onChange={handleCanvasInputChange} rows={6} className="bg-card" placeholder="The Range:&#10;Confidence Level:&#10;Key Factors:"/></CardContent>
+                        </Card>
+                    </AccordionContent>
+                </AccordionItem>
+
                 <AccordionItem value="item-3">
-                    <AccordionTrigger className="text-xl font-headline">2. Strategy &amp; AI Recommendation</AccordionTrigger>
+                    <AccordionTrigger className="text-xl font-headline">3. Strategy &amp; AI Recommendation</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2"><Label htmlFor="strategy-a" className="text-lg font-semibold">Strategy A: Speed-Based Deployment</Label><Textarea id="strategy-a" name="a" value={strategyAnalysis.a} onChange={handleStrategyAnalysisChange} rows={8} /></div>
@@ -257,7 +301,7 @@ export function ProposalFramework() {
                 </AccordionItem>
 
                 <AccordionItem value="item-4">
-                    <AccordionTrigger className="text-xl font-headline">3. Final Proposal Summary</AccordionTrigger>
+                    <AccordionTrigger className="text-xl font-headline">4. Final Proposal Summary</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-6">
                         {recommendation ? (
                             <>

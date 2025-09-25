@@ -20,6 +20,12 @@ const AiPoweredRecommendationInputSchema = z.object({
   costModelConfigurations: z.string().describe('Cost model parameters such as labor rates, living expenses, and project management overhead.'),
   strategyAAnalysis: z.string().describe('Analysis of Strategy A, a speed-based deployment scenario. This may include sub-scenarios (e.g., Accelerated, Balanced, Sequential).'),
   strategyBAnalysis: z.string().describe('Analysis of Strategy B, an optimized logistical deployment scenario. This focuses on cost-efficiency and operational constraints.'),
+  scope: z.string().describe('Defines what is included and excluded in the project.'),
+  assumptions: z.string().describe('Lists everything held to be true for the estimate to be valid.'),
+  risks: z.string().describe('Identifies potential problems and uncertainties.'),
+  knowns: z.string().describe('Captures hard facts and concrete data.'),
+  dependencies: z.string().describe('Lists everything the project needs from other teams or systems.'),
+  estimate: z.string().describe('The user-formulated estimate, including range and confidence level.'),
 });
 
 export type AiPoweredRecommendationInput = z.infer<typeof AiPoweredRecommendationInputSchema>;
@@ -43,24 +49,32 @@ const prompt = ai.definePrompt({
   output: {schema: AiPoweredRecommendationOutputSchema},
   prompt: `You are an expert project management consultant specializing in optimizing project costs and logistical efficiency for large-scale technology rollouts. Your task is to provide a comprehensive executive summary and recommendation based on two proposed deployment strategies.
 
-Analyze the provided information and determine which strategy offers the best value proposition. Your summary should be clear, concise, and justify your choice.
+Analyze all the provided information, including the qualitative inputs from the Estimating Canvas, to determine which strategy offers the best value proposition. Your summary should be clear, concise, and justify your choice.
 
-**Context:**
+**Core Project & Financial Data:**
 - Client Data: {{{clientData}}}
 - Vendor Quotes: {{{vendorQuotes}}}
 - Logistical Configurations: {{{logisticalConfigurations}}}
 - Cost Model Configurations: {{{costModelConfigurations}}}
+
+**Estimating Canvas (Qualitative Inputs):**
+- Scope & Boundaries: {{{scope}}}
+- Assumptions: {{{assumptions}}}
+- Risks & Uncertainties: {{{risks}}}
+- Knowns & Data: {{{knowns}}}
+- Dependencies: {{{dependencies}}}
+- User's Preliminary Estimate: {{{estimate}}}
 
 **Strategies for Analysis:**
 - **Strategy A (Speed-Based Deployment):** {{{strategyAAnalysis}}}
 - **Strategy B (Optimized Logistical Deployment):** {{{strategyBAnalysis}}}
 
 **Your Task:**
-1.  Write a detailed executive summary that introduces the project and the two strategies.
-2.  Compare the pros and cons of each strategy (e.g., cost, speed, complexity).
+1.  Write a detailed executive summary that introduces the project and the two strategies. Incorporate insights from the Estimating Canvas inputs to add depth to your analysis.
+2.  Compare the pros and cons of each strategy (e.g., cost, speed, complexity), considering the stated risks and assumptions.
 3.  Select the best strategy (Strategy A or Strategy B) and clearly state your recommendation.
 4.  Provide an estimated total cost for your recommended strategy.
-5.  Summarize the key factors that led to your decision.
+5.  Summarize the key factors that led to your decision, referencing the qualitative data where appropriate.
 `,
 });
 
