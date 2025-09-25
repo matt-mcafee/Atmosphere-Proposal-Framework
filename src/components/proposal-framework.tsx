@@ -167,8 +167,8 @@ export function ProposalFramework() {
                                 <CardDescription className="text-primary-foreground/80 print:text-muted-foreground">Prepared for: {projectInfo.client || "..."} | Date: {projectInfo.date}</CardDescription>
                             </div>
                             <div className="flex space-x-2 print:hidden">
-                                <Button variant="secondary" onClick={() => {}}><FileText className="mr-2 h-4 w-4" />Export to Docs</Button>
-                                <Button variant="secondary" onClick={() => {}}><Sheet className="mr-2 h-4 w-4" />Export to Sheets</Button>
+                                <Button variant="secondary" onClick={() => toast({ title: 'Coming Soon!', description: 'Export to Google Docs is under development.'})}><FileText className="mr-2 h-4 w-4" />Export to Docs</Button>
+                                <Button variant="secondary" onClick={() => toast({ title: 'Coming Soon!', description: 'Export to Google Sheets is under development.'})}><Sheet className="mr-2 h-4 w-4" />Export to Sheets</Button>
                                 <Button variant="secondary" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Export to PDF</Button>
                             </div>
                         </div>
