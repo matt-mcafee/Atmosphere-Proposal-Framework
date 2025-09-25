@@ -29,7 +29,6 @@ type StrategyAnalysis = { a: string; b: string; };
 export function ProposalFramework() {
   const { toast } = useToast();
   const [projectInfo, setProjectInfo] = useState<ProjectInfo>({ name: '', client: '', date: new Date().toISOString().split('T')[0] });
-  const [apiKey, setApiKey] = useState('');
   const [bom, setBom] = useState<GenerateBillOfMaterialsFromDrawingOutput | null>(null);
   const [travelCosts, setTravelCosts] = useState<EstimateTravelCostsOutput | null>(null);
   const [recommendation, setRecommendation] = useState<AiPoweredRecommendationOutput | null>(null);
@@ -49,9 +48,6 @@ export function ProposalFramework() {
     const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%.`;
 
     try {
-      // Note: In a real app, you would not pass the key from the client like this.
-      // This is a workaround for the read-only file system.
-      // The flow would ideally be configured on the server with the key.
       const result = await aiPoweredRecommendation({ clientData, vendorQuotes, logisticalConfigurations, costModelConfigurations, strategyAAnalysis: strategyAnalysis.a, strategyBAnalysis: strategyAnalysis.b });
       setRecommendation(result);
       toast({ title: 'Success', description: 'AI recommendation has been generated.' });
@@ -110,21 +106,8 @@ export function ProposalFramework() {
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader><CardTitle>Core Configuration</CardTitle><CardDescription>Set baseline parameters for calculations and AI.</CardDescription></CardHeader>
+                        <CardHeader><CardTitle>Core Configuration</CardTitle><CardDescription>Set baseline parameters for calculations.</CardDescription></CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="apiKey">Gemini API Key</Label>
-                              <div className="flex items-center gap-2">
-                                <KeyRound className="h-5 w-5 text-muted-foreground" />
-                                <Input id="apiKey" name="apiKey" type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="Enter your Google Gemini API Key" />
-                              </div>
-                               <p className="text-xs text-muted-foreground pt-1">
-                                Get your key from{' '}
-                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="font-semibold underline">
-                                  Google AI Studio
-                                </a>.
-                              </p>
-                            </div>
                             <div className="space-y-2"><Label htmlFor="onSiteLabor">On-Site Labor (hours/site)</Label><Input id="onSiteLabor" name="onSiteLabor" type="number" value={costConfig.onSiteLabor} onChange={handleCostConfigChange} /></div>
                             <div className="space-y-2"><Label htmlFor="livingExpenses">Living Expenses ($/night)</Label><Input id="livingExpenses" name="livingExpenses" type="number" value={costConfig.livingExpenses} onChange={handleCostConfigChange} /></div>
                              <div className="space-y-2"><Label htmlFor="pmOverhead">Project Management Overhead (%)</Label><Input id="pmOverhead" name="pmOverhead" type="number" value={costConfig.pmOverhead} onChange={handleCostConfigChange} /></div>
@@ -154,7 +137,7 @@ export function ProposalFramework() {
             <AccordionTrigger className="text-xl font-headline">3. Strategy & AI Recommendation</AccordionTrigger>
             <AccordionContent className="pt-4 space-y-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="space-y-2"><Label htmlFor="strategy-a" className="text-lg font-semibold">Strategy A Analysis</Label><Textarea id="strategy-a" name="a" value={strategyAnalysis.a} onChange={handleStrategyAnalysisChange} rows={8} /></div><div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B Analysis</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div></div>
-                 <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending || !apiKey} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
+                 <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
                 {recommendation && <Card className="bg-primary/5 border-primary/20"><CardHeader><CardTitle className="flex items-center gap-2 text-primary"><ShipWheel /> AI-Powered Recommendation</CardTitle></CardHeader><CardContent className="space-y-4"><blockquote className="border-l-4 border-accent pl-4 italic">"{recommendation.recommendation}"</blockquote><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4"><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Recommended Strategy</p><p className="text-xl font-bold font-headline">{recommendation.recommendedStrategy}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Estimated Cost</p><p className="text-xl font-bold font-headline">${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Key Deciding Factors</p><p className="text-base">{recommendation.keyFactors}</p></div></div></CardContent></Card>}
             </AccordionContent>
         </AccordionItem>

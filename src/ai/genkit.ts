@@ -7,7 +7,7 @@ const prodCors = {
 };
 
 export const ai = genkit({
-  plugins: [googleAI({apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY})],
+  plugins: [googleAI({apiKey: 'YOUR_API_KEY_HERE'})],
   model: 'googleai/gemini-2.5-flash',
   enableTracing: genkit.isDev,
   flowStateStore: 'firebase',
