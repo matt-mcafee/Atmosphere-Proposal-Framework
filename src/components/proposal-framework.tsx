@@ -9,6 +9,7 @@ import type { AiPoweredRecommendationOutput } from '@/ai/flows/ai-powered-recomm
 import { aiPoweredRecommendation } from '@/ai/flows/ai-powered-recommendation';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
@@ -34,6 +35,8 @@ export function ProposalFramework() {
   const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, livingExpenses: 330, pmOverhead: 12.5 });
   const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis>({ a: 'Strategy A involves an accelerated deployment model, prioritizing speed by deploying multiple technician teams simultaneously across different regions. This approach aims to reduce the overall project timeline but may incur higher logistical and travel costs due to less optimized routing.', b: 'Strategy B focuses on a logistical cluster deployment, where a single technician or team is assigned to a geographical province or cluster of locations. This strategy optimizes travel routes and minimizes overnight stays, aiming for maximum cost-efficiency, potentially at the expense of a longer project duration.' });
   const [isRecommending, setIsRecommending] = useState(false);
+  const [isApiKeyMissing, setIsApiKeyMissing] = useState(!process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+
 
   const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => setProjectInfo({ ...projectInfo, [e.target.name]: e.target.value });
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
@@ -75,6 +78,19 @@ export function ProposalFramework() {
   
   return (
     <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8">
+      {isApiKeyMissing && (
+        <Alert className="mb-8">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Enable AI Features</AlertTitle>
+          <AlertDescription>
+            To use the AI-powered features of this app, you need a Gemini API key. 
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="font-medium text-primary underline underline-offset-4 ml-1">
+              Get your key from Google AI Studio
+            </a>
+            , then add it to a new file named <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">.env</code> in your project root with the content: <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">GEMINI_API_KEY=YOUR_API_KEY</code>
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold font-headline tracking-tight sm:text-5xl">
           Proposal Generation Framework
