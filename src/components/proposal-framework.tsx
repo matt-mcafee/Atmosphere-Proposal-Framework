@@ -9,7 +9,6 @@ import type { AiPoweredRecommendationOutput } from '@/ai/flows/ai-powered-recomm
 import { aiPoweredRecommendation } from '@/ai/flows/ai-powered-recommendation';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,8 +25,6 @@ type ProjectInfo = { name: string; client: string; date: string; };
 type CostConfig = { onSiteLabor: number; livingExpenses: number; pmOverhead: number; };
 type StrategyAnalysis = { a: string; b: string; };
 
-const isApiKeyMissing = process.env.NEXT_PUBLIC_GEMINI_API_KEY === 'YOUR_API_KEY_HERE' || !process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
 export function ProposalFramework() {
   const { toast } = useToast();
   const [projectInfo, setProjectInfo] = useState<ProjectInfo>({ name: '', client: '', date: new Date().toISOString().split('T')[0] });
@@ -43,14 +40,6 @@ export function ProposalFramework() {
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
 
   const handleGetRecommendation = async () => {
-    if (isApiKeyMissing) {
-      toast({
-        variant: 'destructive',
-        title: 'API Key Not Configured',
-        description: 'Please configure your Gemini API key in src/ai/genkit.ts to use this feature.',
-      });
-      return;
-    }
     setIsRecommending(true);
     const clientData = "Client has a standard pricing agreement with tiered discounts.";
     const vendorQuotes = "Primary vendor offers a 5% discount on bulk orders over $50,000.";
@@ -94,21 +83,6 @@ export function ProposalFramework() {
           Build powerful, data-driven proposals with AI-assisted estimation.
         </p>
       </div>
-
-       {isApiKeyMissing && (
-        <Alert variant="destructive" className="mb-8">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Action Required: Configure Gemini API Key</AlertTitle>
-          <AlertDescription>
-            The AI features of this application are currently disabled. To enable them, you must add your Google Gemini API key.
-            <ol className="list-decimal list-inside my-2">
-              <li>Open the file <code className="font-mono bg-destructive-foreground/20 px-1 py-0.5 rounded">src/ai/genkit.ts</code> in your editor.</li>
-              <li>Replace the placeholder <code className="font-mono bg-destructive-foreground/20 px-1 py-0.5 rounded">'YOUR_API_KEY_HERE'</code> with your actual Gemini API key.</li>
-            </ol>
-            If you don't have a key, you can get one from the <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <Accordion type="multiple" defaultValue={['item-1', 'item-sherpa']} className="w-full space-y-4">
         <AccordionItem value="item-sherpa">
@@ -162,7 +136,7 @@ export function ProposalFramework() {
             <AccordionTrigger className="text-xl font-headline">3. Strategy & AI Recommendation</AccordionTrigger>
             <AccordionContent className="pt-4 space-y-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="space-y-2"><Label htmlFor="strategy-a" className="text-lg font-semibold">Strategy A Analysis</Label><Textarea id="strategy-a" name="a" value={strategyAnalysis.a} onChange={handleStrategyAnalysisChange} rows={8} /></div><div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B Analysis</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div></div>
-                 <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending || isApiKeyMissing} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
+                 <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
                 {recommendation && <Card className="bg-primary/5 border-primary/20"><CardHeader><CardTitle className="flex items-center gap-2 text-primary"><ShipWheel /> AI-Powered Recommendation</CardTitle></CardHeader><CardContent className="space-y-4"><blockquote className="border-l-4 border-accent pl-4 italic">"{recommendation.recommendation}"</blockquote><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4"><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Recommended Strategy</p><p className="text-xl font-bold font-headline">{recommendation.recommendedStrategy}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Estimated Cost</p><p className="text-xl font-bold font-headline">${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Key Deciding Factors</p><p className="text-base">{recommendation.keyFactors}</p></div></div></CardContent></Card>}
             </AccordionContent>
         </AccordionItem>
