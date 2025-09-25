@@ -60,17 +60,15 @@ export function ProposalFramework() {
 
   const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProjectInfo(prev => {
-        const newInfo = { ...prev, [name]: value };
-        if (name === 'client') {
-            if (value && value.toLowerCase().trim() === 'equinix') {
-                setUseMSA(true);
-            } else {
-                setUseMSA(false);
-            }
-        }
-        return newInfo;
-    });
+    setProjectInfo(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'client') {
+      if (value && value.toLowerCase().trim() === 'equinix') {
+        setUseMSA(true);
+      } else {
+        setUseMSA(false);
+      }
+    }
   };
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
