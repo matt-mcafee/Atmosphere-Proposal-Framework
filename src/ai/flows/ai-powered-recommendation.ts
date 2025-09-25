@@ -18,17 +18,17 @@ const AiPoweredRecommendationInputSchema = z.object({
   vendorQuotes: z.string().describe('Vendor quotes for materials, equipment, and services.'),
   logisticalConfigurations: z.string().describe('Logistical considerations, such as project location(s), technician availability, and travel constraints.'),
   costModelConfigurations: z.string().describe('Cost model parameters such as labor rates, living expenses, and project management overhead.'),
-  strategyAAnalysis: z.string().describe('Analysis of Strategy A deployment scenario'),
-  strategyBAnalysis: z.string().describe('Analysis of Strategy B deployment scenario'),
+  strategyAAnalysis: z.string().describe('Analysis of Strategy A, a speed-based deployment scenario. This may include sub-scenarios (e.g., Accelerated, Balanced, Sequential).'),
+  strategyBAnalysis: z.string().describe('Analysis of Strategy B, an optimized logistical deployment scenario. This focuses on cost-efficiency and operational constraints.'),
 });
 
 export type AiPoweredRecommendationInput = z.infer<typeof AiPoweredRecommendationInputSchema>;
 
 const AiPoweredRecommendationOutputSchema = z.object({
-  recommendation: z.string().describe('A detailed recommendation of the best costing and approach, including a justification for the recommendation.'),
+  recommendation: z.string().describe('A detailed recommendation and executive summary explaining the best costing and approach. Justify the choice between Strategy A and Strategy B.'),
   recommendedStrategy: z.enum(['Strategy A', 'Strategy B']).describe('The recommended strategy: either Strategy A or Strategy B.'),
   estimatedCost: z.number().describe('The estimated cost for the recommended strategy.'),
-  keyFactors: z.string().describe('Key factors influencing the recommendation.'),
+  keyFactors: z.string().describe('A brief summary of the key factors influencing the recommendation (e.g., cost savings, timeline, operational simplicity).'),
 });
 
 export type AiPoweredRecommendationOutput = z.infer<typeof AiPoweredRecommendationOutputSchema>;
@@ -41,16 +41,26 @@ const prompt = ai.definePrompt({
   name: 'aiPoweredRecommendationPrompt',
   input: {schema: AiPoweredRecommendationInputSchema},
   output: {schema: AiPoweredRecommendationOutputSchema},
-  prompt: `You are an expert project management consultant specializing in optimizing project costs and logistical efficiency. Based on the information provided, you will analyze the various strategies and recommend the best costing and approach. Provide a detailed explanation of your recommendation, including a justification for your choice and the key factors that influenced your decision.
+  prompt: `You are an expert project management consultant specializing in optimizing project costs and logistical efficiency for large-scale technology rollouts. Your task is to provide a comprehensive executive summary and recommendation based on two proposed deployment strategies.
 
-Client Data: {{{clientData}}}
-Vendor Quotes: {{{vendorQuotes}}}
-Logistical Configurations: {{{logisticalConfigurations}}}
-Cost Model Configurations: {{{costModelConfigurations}}}
-Strategy A Analysis: {{{strategyAAnalysis}}}
-Strategy B Analysis: {{{strategyBAnalysis}}}
+Analyze the provided information and determine which strategy offers the best value proposition. Your summary should be clear, concise, and justify your choice.
 
-Consider factors such as total cost, project duration, logistical complexity, and potential risks when formulating your recommendation. Select the most appropriate strategy (Strategy A or Strategy B) and provide an estimated cost for the recommended approach.
+**Context:**
+- Client Data: {{{clientData}}}
+- Vendor Quotes: {{{vendorQuotes}}}
+- Logistical Configurations: {{{logisticalConfigurations}}}
+- Cost Model Configurations: {{{costModelConfigurations}}}
+
+**Strategies for Analysis:**
+- **Strategy A (Speed-Based Deployment):** {{{strategyAAnalysis}}}
+- **Strategy B (Optimized Logistical Deployment):** {{{strategyBAnalysis}}}
+
+**Your Task:**
+1.  Write a detailed executive summary that introduces the project and the two strategies.
+2.  Compare the pros and cons of each strategy (e.g., cost, speed, complexity).
+3.  Select the best strategy (Strategy A or Strategy B) and clearly state your recommendation.
+4.  Provide an estimated total cost for your recommended strategy.
+5.  Summarize the key factors that led to your decision.
 `,
 });
 

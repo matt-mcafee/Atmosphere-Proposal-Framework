@@ -4,34 +4,25 @@
 
 @layer base {
   :root {
-    --background-start: #020418;
-    --background-end: #0a0a1a;
-    --accent-primary: #00f6ff;
-    --accent-secondary: #247cff;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0b0;
-    --card-bg: rgba(16, 18, 38, 0.6);
-    --border-color: rgba(0, 246, 255, 0.2);
-    
-    --background: 0 0% 93.3%;
+    --background: 220 13% 95%;
     --foreground: 222.2 47.4% 11.2%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
-    --primary: 210 32% 28%;
+    --primary: 210 100% 20%; /* Dark Blue */
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 210 40% 9.8%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 0 84.2% 60.2%;
+    --accent: 210 100% 50%; /* Lighter Blue */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 215 20.2% 65.1%;
+    --ring: 210 100% 50%;
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -41,34 +32,25 @@
   }
 
   .dark {
-    --background-start: #020418;
-    --background-end: #0a0a1a;
-    --accent-primary: #00f6ff;
-    --accent-secondary: #247cff;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0b0;
-    --card-bg: rgba(16, 18, 38, 0.6);
-    --border-color: rgba(0, 246, 255, 0.2);
-
-    --background: 224 71% 4%;
+    --background: 220 13% 10%;
     --foreground: 210 40% 98%;
-    --card: 222.2 47.4% 11.2%;
+    --card: 224 71% 4%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 210 100% 30%; /* Dark Blue for Dark Mode */
+    --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 183 100% 50%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 100% 60%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 183 100% 50% / 0.2;
+    --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 183 100% 50%;
+    --ring: 210 100% 70%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -84,74 +66,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-@layer utilities {
-    .glass-card {
-        background-color: var(--card-bg);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--border-color);
-        border-radius: 1rem;
-        transition: all 0.3s ease;
-        height: 100%; /* Ensure cards in a grid are same height */
-    }
-    
-    .glass-card:hover {
-        border-color: rgba(0, 246, 255, 0.5);
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 246, 255, 0.08);
-    }
-
-    .accent-glow {
-        color: var(--accent-primary);
-        text-shadow: 0 0 10px rgba(0, 246, 255, 0.7);
-    }
-
-    .section-title {
-        font-weight: 400;
-        font-size: 2.5rem;
-        line-height: 1.2;
-        margin-bottom: 2.5rem;
-        text-align: center;
-        letter-spacing: 0.05em;
-    }
-    
-    .subsection-title {
-        font-weight: 400;
-        font-size: 1.875rem;
-        line-height: 2.25rem;
-        color: var(--text-primary);
-        border-bottom: 2px solid var(--border-color);
-        padding-bottom: 0.75rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-    }
-
-    /* SVG Path styles for the Ascent */
-    #ascent-path {
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-        animation: draw-path 5s ease-out forwards;
-    }
-
-    @keyframes draw-path {
-        to { stroke-dashoffset: 0; }
-    }
-
-    .stage-marker {
-        animation: fade-in 0.5s ease-out forwards;
-        opacity: 0;
-    }
-
-    @keyframes fade-in {
-        to { opacity: 1; }
-    }
-
-    .stage-marker:nth-child(1) { animation-delay: 1s; }
-    .stage-marker:nth-child(2) { animation-delay: 2s; }
-    .stage-marker:nth-child(3) { animation-delay: 3s; }
-    .stage-marker:nth-child(4) { animation-delay: 4s; }
-
 }
