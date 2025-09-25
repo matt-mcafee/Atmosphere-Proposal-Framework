@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Terminal, Sheet, FileText, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
@@ -35,6 +35,7 @@ export function ProposalFramework() {
   const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, livingExpenses: 330, pmOverhead: 12.5 });
   const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis>({ a: 'Strategy A involves an accelerated deployment model, prioritizing speed by deploying multiple technician teams simultaneously across different regions. This approach aims to reduce the overall project timeline but may incur higher logistical and travel costs due to less optimized routing.', b: 'Strategy B focuses on a logistical cluster deployment, where a single technician or team is assigned to a geographical province or cluster of locations. This strategy optimizes travel routes and minimizes overnight stays, aiming for maximum cost-efficiency, potentially at the expense of a longer project duration.' });
   const [isRecommending, setIsRecommending] = useState(false);
+  const isApiKeyMissing = process.env.NEXT_PUBLIC_GEMINI_API_KEY === 'YOUR_API_KEY_HERE';
 
   const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => setProjectInfo({ ...projectInfo, [e.target.name]: e.target.value });
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
@@ -84,6 +85,19 @@ export function ProposalFramework() {
           Build powerful, data-driven proposals with AI-assisted estimation.
         </p>
       </div>
+
+       {isApiKeyMissing && (
+        <Alert variant="destructive" className="mb-8">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Gemini API Key is Missing</AlertTitle>
+          <AlertDescription>
+            The AI features of this application are disabled. To enable them, you must add your Google Gemini API key. Please add your key to the `apiKey` field in the `googleAI` plugin configuration in `src/ai/genkit.ts`. You can get a key from{' '}
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+              Google AI Studio
+            </a>.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Accordion type="multiple" defaultValue={['item-1', 'item-sherpa']} className="w-full space-y-4">
         <AccordionItem value="item-sherpa">
@@ -137,7 +151,7 @@ export function ProposalFramework() {
             <AccordionTrigger className="text-xl font-headline">3. Strategy & AI Recommendation</AccordionTrigger>
             <AccordionContent className="pt-4 space-y-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="space-y-2"><Label htmlFor="strategy-a" className="text-lg font-semibold">Strategy A Analysis</Label><Textarea id="strategy-a" name="a" value={strategyAnalysis.a} onChange={handleStrategyAnalysisChange} rows={8} /></div><div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B Analysis</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div></div>
-                 <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
+                 <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending || isApiKeyMissing} size="lg">{isRecommending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}Generate AI Recommendation</Button></div>
                 {recommendation && <Card className="bg-primary/5 border-primary/20"><CardHeader><CardTitle className="flex items-center gap-2 text-primary"><ShipWheel /> AI-Powered Recommendation</CardTitle></CardHeader><CardContent className="space-y-4"><blockquote className="border-l-4 border-accent pl-4 italic">"{recommendation.recommendation}"</blockquote><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4"><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Recommended Strategy</p><p className="text-xl font-bold font-headline">{recommendation.recommendedStrategy}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Estimated Cost</p><p className="text-xl font-bold font-headline">${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div><div className="p-4 bg-muted rounded-lg"><p className="text-sm font-medium text-muted-foreground">Key Deciding Factors</p><p className="text-base">{recommendation.keyFactors}</p></div></div></CardContent></Card>}
             </AccordionContent>
         </AccordionItem>
