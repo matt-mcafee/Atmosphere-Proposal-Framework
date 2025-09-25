@@ -18,6 +18,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ModuleCard } from '@/components/module-card';
 import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { SherpaModule } from '@/components/sherpa-module';
+import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 
 type ProjectInfo = { name: string; client: string; date: string; };
 type CostConfig = { onSiteLabor: number; livingExpenses: number; pmOverhead: number; };
@@ -56,6 +58,18 @@ export function ProposalFramework() {
     }
   };
 
+  const handleSherpaSuccess = (data: SherpaOutput) => {
+    const newProjectInfo = { ...projectInfo };
+    if (data.projectName) {
+      newProjectInfo.name = data.projectName;
+    }
+    if (data.clientName) {
+      newProjectInfo.client = data.clientName;
+    }
+    setProjectInfo(newProjectInfo);
+    toast({ title: 'Sherpa has updated the project details.' });
+  };
+
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
   
@@ -70,7 +84,14 @@ export function ProposalFramework() {
         </p>
       </div>
 
-      <Accordion type="multiple" defaultValue={['item-1']} className="w-full space-y-4">
+      <Accordion type="multiple" defaultValue={['item-1', 'item-sherpa']} className="w-full space-y-4">
+        <AccordionItem value="item-sherpa">
+            <AccordionTrigger className="text-xl font-headline">✨ Sherpa Assistant</AccordionTrigger>
+            <AccordionContent className="pt-4">
+                <SherpaModule onSuccess={handleSherpaSuccess} />
+            </AccordionContent>
+        </AccordionItem>
+
         <AccordionItem value="item-1">
             <AccordionTrigger className="text-xl font-headline">1. Project Setup & Document Ingestion</AccordionTrigger>
             <AccordionContent className="pt-4">
