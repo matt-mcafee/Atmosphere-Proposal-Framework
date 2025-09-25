@@ -4,6 +4,15 @@
 
 @layer base {
   :root {
+    --background-start: #020418;
+    --background-end: #0a0a1a;
+    --accent-primary: #00f6ff;
+    --accent-secondary: #247cff;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0b0;
+    --card-bg: rgba(16, 18, 38, 0.6);
+    --border-color: rgba(0, 246, 255, 0.2);
+    
     --background: 0 0% 93.3%;
     --foreground: 222.2 47.4% 11.2%;
     --card: 0 0% 100%;
@@ -30,8 +39,18 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
+
   .dark {
-    --background: 222.2 47.4% 11.2%;
+    --background-start: #020418;
+    --background-end: #0a0a1a;
+    --accent-primary: #00f6ff;
+    --accent-secondary: #247cff;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0b0;
+    --card-bg: rgba(16, 18, 38, 0.6);
+    --border-color: rgba(0, 246, 255, 0.2);
+
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
     --card: 222.2 47.4% 11.2%;
     --card-foreground: 210 40% 98%;
@@ -43,13 +62,13 @@
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 0 84.2% 60.2%;
+    --accent: 183 100% 50%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
+    --border: 183 100% 50% / 0.2;
     --input: 217.2 32.6% 17.5%;
-    --ring: 0 84.2% 60.2%;
+    --ring: 183 100% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -65,4 +84,74 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+    .glass-card {
+        background-color: var(--card-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        height: 100%; /* Ensure cards in a grid are same height */
+    }
+    
+    .glass-card:hover {
+        border-color: rgba(0, 246, 255, 0.5);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 246, 255, 0.08);
+    }
+
+    .accent-glow {
+        color: var(--accent-primary);
+        text-shadow: 0 0 10px rgba(0, 246, 255, 0.7);
+    }
+
+    .section-title {
+        font-weight: 400;
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 2.5rem;
+        text-align: center;
+        letter-spacing: 0.05em;
+    }
+    
+    .subsection-title {
+        font-weight: 400;
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    /* SVG Path styles for the Ascent */
+    #ascent-path {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: draw-path 5s ease-out forwards;
+    }
+
+    @keyframes draw-path {
+        to { stroke-dashoffset: 0; }
+    }
+
+    .stage-marker {
+        animation: fade-in 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fade-in {
+        to { opacity: 1; }
+    }
+
+    .stage-marker:nth-child(1) { animation-delay: 1s; }
+    .stage-marker:nth-child(2) { animation-delay: 2s; }
+    .stage-marker:nth-child(3) { animation-delay: 3s; }
+    .stage-marker:nth-child(4) { animation-delay: 4s; }
+
 }
