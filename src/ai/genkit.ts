@@ -9,7 +9,7 @@ const prodCors = {
 export const ai = genkit({
   plugins: [googleAI({apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'YOUR_API_KEY_HERE'})],
   model: 'googleai/gemini-2.5-flash',
-  enableTracing: genkit.isDev,
+  enableTracing: process.env.NODE_ENV === 'development',
   flowStateStore: 'firebase',
   traceStore: 'firebase',
   flowStateStoreConfig: {
@@ -17,13 +17,13 @@ export const ai = genkit({
   },
   traceStoreConfig: {
     collection: 'traces',
-    allowInsecureConnection: genkit.isDev,
+    allowInsecureConnection: process.env.NODE_ENV === 'development',
   },
   auth: async (
     auth: {key: string; flowIds: string[]},
     flow: Flow
   ): Promise<boolean> => {
-    return genkit.isDev ? true : false;
+    return process.env.NODE_ENV === 'development' ? true : false;
   },
-  cors: genkit.isDev ? undefined : prodCors,
+  cors: process.env.NODE_ENV === 'development' ? undefined : prodCors,
 });
