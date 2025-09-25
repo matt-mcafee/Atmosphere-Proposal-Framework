@@ -92,14 +92,14 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-             <div className="mt-6 text-center">
-                <Link href="/proposal" passHref>
-                    <button className="bg-accent-primary/20 text-accent-primary border-2 border-accent-primary px-8 py-3 rounded-lg font-medium hover:bg-accent-primary hover:text-background-start transition-all duration-300">
-                        Enter the Ascension Engine
-                    </button>
-                </Link>
-            </div>
           </div>
+        </div>
+         <div className="mt-12 text-center">
+            <Link href="/proposal" passHref>
+                <button className="bg-accent-primary/20 text-accent-primary border-2 border-accent-primary px-12 py-4 rounded-lg font-medium hover:bg-accent-primary hover:text-background-start transition-all duration-300 text-lg">
+                    Enter the Ascension Engine
+                </button>
+            </Link>
         </div>
       </section>
 
