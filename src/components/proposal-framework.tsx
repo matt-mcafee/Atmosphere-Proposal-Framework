@@ -25,7 +25,15 @@ import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 
 type ProjectInfo = { name: string; client: string; date: string; };
-type CostConfig = { onSiteLabor: number; livingExpenses: number; pmOverhead: number; travelHours: number; parkingCost: number; };
+type CostConfig = { 
+  onSiteLabor: number; 
+  technicianRate: number;
+  livingExpenses: number; 
+  pmOverhead: number; 
+  travelHours: number; 
+  parkingCost: number; 
+  mealsCost: number;
+};
 type StrategyAnalysis = { a: string; b: string; };
 
 
@@ -35,7 +43,15 @@ export function ProposalFramework() {
   const [bom, setBom] = useState<GenerateBillOfMaterialsFromDrawingOutput | null>(null);
   const [travelCosts, setTravelCosts] = useState<EstimateTravelCostsOutput | null>(null);
   const [recommendation, setRecommendation] = useState<AiPoweredRecommendationOutput | null>(null);
-  const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, livingExpenses: 330, pmOverhead: 12.5, travelHours: 2, parkingCost: 25 });
+  const [costConfig, setCostConfig] = useState<CostConfig>({ 
+    onSiteLabor: 3, 
+    technicianRate: 75,
+    livingExpenses: 330, 
+    pmOverhead: 12.5, 
+    travelHours: 2, 
+    parkingCost: 25,
+    mealsCost: 50,
+  });
   const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis>({ a: 'Strategy A involves an accelerated deployment model, prioritizing speed by deploying multiple technician teams simultaneously across different regions. This approach aims to reduce the overall project timeline but may incur higher logistical and travel costs due to less optimized routing.', b: 'Strategy B focuses on a logistical cluster deployment, where a single technician or team is assigned to a geographical province or cluster of locations. This strategy optimizes travel routes and minimizes overnight stays, aiming for maximum cost-efficiency, potentially at the expense of a longer project duration.' });
   const [isRecommending, setIsRecommending] = useState(false);
   const [conversation, setConversation] = useState<ConversationTurn[]>([]);
@@ -50,7 +66,7 @@ export function ProposalFramework() {
     const clientData = "Client has a standard pricing agreement with tiered discounts.";
     const vendorQuotes = "Primary vendor offers a 5% discount on bulk orders over $50,000.";
     const logisticalConfigurations = travelCosts?.optimalRouteSummary || "Standard logistics to be applied based on location density.";
-    const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%. Travel: ${costConfig.travelHours} hours. Parking: $${costConfig.parkingCost}.`;
+    const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site @ $${costConfig.technicianRate}/hr. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%. Travel: ${costConfig.travelHours} hours. Parking: $${costConfig.parkingCost}. Meals: $${costConfig.mealsCost}/day.`;
     const bomData = bom?.billOfMaterials || "No Bill of Materials provided.";
 
     return {
@@ -126,6 +142,33 @@ export function ProposalFramework() {
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
   
+  const costBreakdown = travelCosts ? (() => {
+    const numberOfLocations = travelCosts.numberOfLocations;
+    const laborPerSite = costConfig.onSiteLabor * costConfig.technicianRate;
+    const travelPerSite = (travelCosts.totalTravelCost / numberOfLocations);
+    const livingPerSite = (travelCosts.totalLivingExpenses / numberOfLocations);
+    const mealsPerSite = (travelCosts.totalOvernightStays / numberOfLocations) * costConfig.mealsCost;
+    const parkingPerSite = costConfig.parkingCost;
+    
+    const costPerSite = laborPerSite + travelPerSite + livingPerSite + mealsPerSite + parkingPerSite;
+    const totalCost = costPerSite * numberOfLocations;
+    const pmCost = totalCost * (costConfig.pmOverhead / 100);
+    const grandTotal = totalCost + pmCost;
+
+    return {
+      numberOfLocations,
+      laborPerSite,
+      travelPerSite,
+      livingPerSite,
+      mealsPerSite,
+      parkingPerSite,
+      costPerSite,
+      totalCost,
+      pmCost,
+      grandTotal,
+    };
+  })() : null;
+
   return (
     <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8 text-center">
@@ -159,12 +202,14 @@ export function ProposalFramework() {
                     </Card>
                     <Card>
                         <CardHeader><CardTitle>Core Configuration</CardTitle><CardDescription>Set baseline parameters for calculations.</CardDescription></CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="grid grid-cols-2 gap-4">
                             <div className="space-y-2"><Label htmlFor="onSiteLabor">On-Site Labor (hours/site)</Label><Input id="onSiteLabor" name="onSiteLabor" type="number" value={costConfig.onSiteLabor} onChange={handleCostConfigChange} /></div>
+                            <div className="space-y-2"><Label htmlFor="technicianRate">Technician Rate ($/hour)</Label><Input id="technicianRate" name="technicianRate" type="number" value={costConfig.technicianRate} onChange={handleCostConfigChange} /></div>
                             <div className="space-y-2"><Label htmlFor="livingExpenses">Living Expenses ($/night)</Label><Input id="livingExpenses" name="livingExpenses" type="number" value={costConfig.livingExpenses} onChange={handleCostConfigChange} /></div>
-                             <div className="space-y-2"><Label htmlFor="pmOverhead">Project Management Overhead (%)</Label><Input id="pmOverhead" name="pmOverhead" type="number" value={costConfig.pmOverhead} onChange={handleCostConfigChange} /></div>
-                             <div className="space-y-2"><Label htmlFor="travelHours">Travel (hours &amp; matrix)</Label><Input id="travelHours" name="travelHours" type="number" value={costConfig.travelHours} onChange={handleCostConfigChange} /></div>
-                             <div className="space-y-2"><Label htmlFor="parkingCost">Parking ($)</Label><Input id="parkingCost" name="parkingCost" type="number" value={costConfig.parkingCost} onChange={handleCostConfigChange} /></div>
+                            <div className="space-y-2"><Label htmlFor="mealsCost">Meals & Incidentals ($/day)</Label><Input id="mealsCost" name="mealsCost" type="number" value={costConfig.mealsCost} onChange={handleCostConfigChange} /></div>
+                            <div className="space-y-2"><Label htmlFor="travelHours">Travel (hours &amp; matrix)</Label><Input id="travelHours" name="travelHours" type="number" value={costConfig.travelHours} onChange={handleCostConfigChange} /></div>
+                            <div className="space-y-2"><Label htmlFor="parkingCost">Parking ($)</Label><Input id="parkingCost" name="parkingCost" type="number" value={costConfig.parkingCost} onChange={handleCostConfigChange} /></div>
+                            <div className="space-y-2 col-span-2"><Label htmlFor="pmOverhead">Project Management Overhead (%)</Label><Input id="pmOverhead" name="pmOverhead" type="number" value={costConfig.pmOverhead} onChange={handleCostConfigChange} /></div>
                         </CardContent>
                     </Card>
                 </div>
@@ -269,9 +314,63 @@ export function ProposalFramework() {
                         </div>
                     </CardHeader>
                     <CardContent className="p-6 space-y-8">
-                        {recommendation ? (<div className="p-4 rounded-lg bg-accent/10 border border-accent/20 print:border-gray-200"><h3 className="font-headline text-lg text-accent-foreground font-semibold flex items-center gap-2"><Lightbulb className="text-accent"/> Executive Summary</h3><p className="mt-2 text-muted-foreground">{recommendation.recommendation} The recommended approach is <strong>{recommendation.recommendedStrategy}</strong> with an estimated total cost of <strong>${recommendation.estimatedCost.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>.</p></div>) : (<div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the summary.</div>)}
+                        {recommendation ? (<div className="p-4 rounded-lg bg-accent/10 border border-accent/20 print:border-gray-200"><h3 className="font-headline text-lg text-accent-foreground font-semibold flex items-center gap-2"><Lightbulb className="text-accent"/> Executive Summary</h3><p className="mt-2 text-muted-foreground">{recommendation.recommendation} The recommended approach is <strong>{recommendation.recommendedStrategy}</strong> with an estimated total cost of <strong>${(costBreakdown?.grandTotal || recommendation.estimatedCost).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>.</p></div>) : (<div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the summary.</div>)}
                         <div className="space-y-4"><h3 className="font-headline text-lg font-semibold">Cost Breakdown</h3>
-                            {travelCosts ? (<Table><TableHeader><TableRow><TableHead>Component</TableHead><TableHead className="text-right">Estimated Cost</TableHead></TableRow></TableHeader><TableBody><TableRow><TableCell>Total Travel Fees</TableCell><TableCell className="text-right">${(travelCosts.totalTravelCost).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell></TableRow><TableRow><TableCell>Total Living Expenses</TableCell><TableCell className="text-right">${(travelCosts.totalLivingExpenses).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell></TableRow><TableRow className="font-bold bg-muted"><TableCell>Total from AI Insights</TableCell><TableCell className="text-right">${(travelCosts.totalTravelCost + travelCosts.totalLivingExpenses).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell></TableRow></TableBody></Table>) : (<div className="text-center py-4 text-muted-foreground text-sm">Upload location data to see travel cost breakdown.</div>)}
+                            {costBreakdown ? (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Component</TableHead>
+                                    <TableHead className="text-right">Per Site Cost</TableHead>
+                                    <TableHead className="text-right">Total Project Cost</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell>On-Site Labor</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.laborPerSite.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                    <TableCell className="text-right">${(costBreakdown.laborPerSite * costBreakdown.numberOfLocations).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell>Travel</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.travelPerSite.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                    <TableCell className="text-right">${(travelCosts?.totalTravelCost || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell>Living Expenses</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.livingPerSite.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                    <TableCell className="text-right">${(travelCosts?.totalLivingExpenses || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell>Meals & Incidentals</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.mealsPerSite.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                    <TableCell className="text-right">${(costBreakdown.mealsPerSite * costBreakdown.numberOfLocations).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell>Parking</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.parkingPerSite.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                    <TableCell className="text-right">${(costBreakdown.parkingPerSite * costBreakdown.numberOfLocations).toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow className="font-semibold bg-muted/50">
+                                    <TableCell>Subtotal</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.costPerSite.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                    <TableCell className="text-right">${costBreakdown.totalCost.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell>Project Management Overhead ({costConfig.pmOverhead}%)</TableCell>
+                                    <TableCell className="text-right"></TableCell>
+                                    <TableCell className="text-right">${costBreakdown.pmCost.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                  <TableRow className="font-bold text-lg bg-muted">
+                                    <TableCell>Grand Total</TableCell>
+                                    <TableCell className="text-right"></TableCell>
+                                    <TableCell className="text-right">${costBreakdown.grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            ) : (
+                              <div className="text-center py-4 text-muted-foreground text-sm">Upload location data to see the full cost breakdown.</div>
+                            )}
                         </div>
                          {bom && <div className="space-y-4 print:break-before-page"><h3 className="font-headline text-lg font-semibold">Bill of Materials</h3><pre className="p-4 bg-muted rounded-md text-sm whitespace-pre-wrap font-code">{bom.billOfMaterials}</pre></div>}
                     </CardContent>

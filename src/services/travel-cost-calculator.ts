@@ -9,8 +9,10 @@ export async function calculateTravelCosts(
   livingExpensePerNight: number,
   techniciansPerLocation: number
 ): Promise<{
+  numberOfLocations: number;
   totalTravelCost: number;
   totalLivingExpenses: number;
+  totalOvernightStays: number;
   optimalRouteSummary: string;
 }> {
   // Mock logic: Pretend we parsed the file and found 20 locations.
@@ -31,8 +33,10 @@ export async function calculateTravelCosts(
   await new Promise(resolve => setTimeout(resolve, 1500));
 
   return {
+    numberOfLocations,
     totalTravelCost,
     totalLivingExpenses,
+    totalOvernightStays,
     optimalRouteSummary,
   };
 }

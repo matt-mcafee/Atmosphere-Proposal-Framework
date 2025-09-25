@@ -25,12 +25,16 @@ const EstimateTravelCostsInputSchema = z.object({
 export type EstimateTravelCostsInput = z.infer<typeof EstimateTravelCostsInputSchema>;
 
 const EstimateTravelCostsOutputSchema = z.object({
+  numberOfLocations: z.number().describe('The total number of locations identified.'),
   totalTravelCost: z
     .number()
     .describe('The estimated total travel cost for all technicians across all locations.'),
   totalLivingExpenses: z
     .number()
     .describe('The estimated total living expenses for all technicians across all locations.'),
+  totalOvernightStays: z
+    .number()
+    .describe('The estimated total number of overnight stays.'),
   optimalRouteSummary: z
     .string()
     .describe('A summary of the optimal travel route, including key locations and estimated travel times.'),
@@ -55,10 +59,6 @@ const estimateTravelCostsFlow = ai.defineFlow(
       input.techniciansPerLocation
     );
 
-    return {
-      totalTravelCost: calculationResult.totalTravelCost,
-      totalLivingExpenses: calculationResult.totalLivingExpenses,
-      optimalRouteSummary: calculationResult.optimalRouteSummary,
-    };
+    return calculationResult;
   }
 );
