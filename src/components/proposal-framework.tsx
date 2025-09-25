@@ -371,7 +371,7 @@ export function ProposalFramework() {
                                         <TableRow>
                                           <TableCell>On-Site Labor</TableCell>
                                           <TableCell className="text-right">{onsiteLaborCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
-                                          <TableCell className="text-right">{(onsiteLaborCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{(onsiteLaborCost * numLocations).toLocaleString('en-US', { style: 'currency', 'currency': 'USD' })}</TableCell>
                                         </TableRow>
                                         <TableRow>
                                           <TableCell>Travel</TableCell>
