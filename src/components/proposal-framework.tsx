@@ -18,10 +18,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send, Sparkles, Milestone, FileQuestion, ShieldAlert, ClipboardCheck, Link } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send, Sparkles, Milestone, FileQuestion, ShieldAlert, ClipboardCheck, Link, FileCog } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
+import { GeneralConditions } from './general-conditions';
 
 type ProjectInfo = { name: string; client: string; date: string; projectId: string; contact: string; version: string; };
 type CostConfig = { onSiteLabor: number; technicianRate: number; livingExpenses: number; pmOverhead: number; travelHoursMatrix: number, parking: number, mealsCost: number };
@@ -55,8 +56,15 @@ export function ProposalFramework() {
     dependencies: 'Internal Teams: \nExternal Parties: \nDecisions: \nSystem Access: ',
     estimate: 'The Range: \nConfidence Level: \nKey Factors: ',
   });
+  const [useMSA, setUseMSA] = useState(false);
 
-  const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => setProjectInfo({ ...projectInfo, [e.target.name]: e.target.value });
+  const handleProjectInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === 'client' && value.toLowerCase().trim() === 'equinix') {
+      setUseMSA(true);
+    }
+    setProjectInfo({ ...projectInfo, [name]: value });
+  };
   const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
   const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
   const handleCanvasInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setCanvasInputs({ ...canvasInputs, [e.target.name]: e.target.value });
@@ -138,7 +146,12 @@ export function ProposalFramework() {
   const handleSherpaSuccess = (data: SherpaOutput) => {
     const newProjectInfo = { ...projectInfo };
     if (data.projectName) newProjectInfo.name = data.projectName;
-    if (data.clientName) newProjectInfo.client = data.clientName;
+    if (data.clientName) {
+      newProjectInfo.client = data.clientName;
+       if (data.clientName.toLowerCase().trim() === 'equinix') {
+        setUseMSA(true);
+      }
+    }
     setProjectInfo(newProjectInfo);
     toast({ title: 'Sherpa has updated the project details.' });
   };
@@ -196,7 +209,15 @@ export function ProposalFramework() {
                             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-1"><Label htmlFor="name">Project Name</Label><Input id="name" name="name" value={projectInfo.name} onChange={handleProjectInfoChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="projectId">Project ID</Label><Input id="projectId" name="projectId" value={projectInfo.projectId} onChange={handleProjectInfoChange} /></div>
-                                <div className="space-y-1"><Label htmlFor="client">Client Name</Label><Input id="client" name="client" value={projectInfo.client} onChange={handleProjectInfoChange} /></div>
+                                <div className="flex flex-col space-y-1">
+                                    <Label htmlFor="client">Client Name</Label>
+                                    <div className="flex items-center gap-2">
+                                        <Input id="client" name="client" value={projectInfo.client} onChange={handleProjectInfoChange} />
+                                        <Button variant={useMSA ? "secondary" : "outline"} size="sm" onClick={() => setUseMSA(!useMSA)} title="Toggle MSA Conditions">
+                                            {useMSA ? 'Use Standard' : 'Use MSA'}
+                                        </Button>
+                                    </div>
+                                </div>
                                 <div className="space-y-1"><Label htmlFor="contact">Contact</Label><Input id="contact" name="contact" value={projectInfo.contact} onChange={handleProjectInfoChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="version">Estimate Version</Label><Input id="version" name="version" value={projectInfo.version} onChange={handleProjectInfoChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="date">Date</Label><Input id="date" name="date" type="date" value={projectInfo.date} onChange={handleProjectInfoChange} /></div>
@@ -382,8 +403,24 @@ export function ProposalFramework() {
                         {travelCosts && <Card><CardHeader><CardTitle className="flex items-center gap-2"><LocateFixed /> Travel Cost Estimation</CardTitle></CardHeader><CardContent><p className="font-medium text-muted-foreground">Optimal Route Summary</p><p>{travelCosts.optimalRouteSummary}</p></CardContent></Card>}
                     </AccordionContent>
                 </AccordionItem>
+                <AccordionItem value="item-5">
+                    <AccordionTrigger className="text-xl font-headline">5. Assumptions &amp; General Conditions</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-6">
+                       <Card>
+                          <CardContent className="pt-6">
+                            {useMSA ? (
+                              <p>Assumptions and General Conditions are as per the MSA with {projectInfo.client}.</p>
+                            ) : (
+                              <GeneralConditions />
+                            )}
+                          </CardContent>
+                        </Card>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     </div>
   );
 }
+
+    
