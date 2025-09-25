@@ -170,7 +170,6 @@ export function ProposalFramework() {
     toast({ title: 'Sherpa has updated the project details.' });
   };
   
-
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
 
