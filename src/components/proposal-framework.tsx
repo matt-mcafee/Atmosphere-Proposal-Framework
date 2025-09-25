@@ -294,7 +294,7 @@ export function ProposalFramework() {
                                         <Textarea placeholder="e.g., Change PM overhead to 15%" value={userQuery} onChange={(e) => setUserQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChallenge(); }}} rows={1} disabled={isConversing} />
                                         <Button onClick={handleChallenge} disabled={!userQuery.trim() || isConversing}><Send /><span className="sr-only">Send</span></Button>
                                     </div>
-                                </CardContent>
+                                 </CardContent>
                             </Card>
                         )}
                     </AccordionContent>
