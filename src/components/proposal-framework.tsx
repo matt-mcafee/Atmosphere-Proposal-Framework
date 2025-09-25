@@ -134,8 +134,8 @@ export function ProposalFramework() {
 
     } catch (error) {
       console.error("Failed to get challenge response:", error);
-      const errorTurn: ConversationTurn = { role: 'model', content: 'Sorry, I encountered an error. Please try again.' };
-      setConversation([...newConversation, errorTurn]);
+      const aiTurn: ConversationTurn = { role: 'model', content: 'Sorry, I encountered an error. Please try again.' };
+      setConversation([...newConversation, aiTurn]);
       toast({ variant: 'destructive', title: 'Error', description: 'Could not get a response.' });
     } finally {
       setIsConversing(false);
@@ -165,7 +165,6 @@ export function ProposalFramework() {
   const livingExpensesCost = travelCosts ? (travelCosts.totalLivingExpenses / numLocations) : 0;
   const mealsCost = travelCosts ? (travelCosts.totalOvernightStays / numLocations) * costConfig.mealsCost : 0;
   const parkingCost = travelCosts ? (travelCosts.totalOvernightStays / numLocations) * costConfig.parking : 0;
-  
   const perSiteSubtotal = onsiteLaborCost + travelCost + livingExpensesCost + mealsCost + parkingCost;
   const totalSubtotal = perSiteSubtotal * numLocations;
   const pmOverheadCost = totalSubtotal * (costConfig.pmOverhead / 100);
@@ -250,29 +249,29 @@ export function ProposalFramework() {
                     <AccordionContent className="pt-4 space-y-6">
                         <Card>
                             <CardHeader><CardTitle className="flex items-center gap-2"><Milestone /> Scope & Boundaries</CardTitle><CardDescription>Define exactly what is included and excluded to prevent scope creep.</CardDescription></CardHeader>
-                            <CardContent><Textarea name="scope" value={canvasInputs.scope} onChange={handleCanvasInputChange} rows={6} placeholder="Deliverables:&#10;\"Done\" Criteria:&#10;In Scope:&#10;Out of Scope:" /></CardContent>
+                            <CardContent><Textarea name="scope" value={canvasInputs.scope} onChange={handleCanvasInputChange} rows={6} placeholder="Deliverables:\n\"Done\" Criteria:\nIn Scope:\nOut of Scope:" /></CardContent>
                         </Card>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Card>
                                 <CardHeader><CardTitle className="flex items-center gap-2"><FileQuestion /> Assumptions</CardTitle><CardDescription>List everything you are holding to be true for your estimate to be valid.</CardDescription></CardHeader>
-                                <CardContent><Textarea name="assumptions" value={canvasInputs.assumptions} onChange={handleCanvasInputChange} rows={8} placeholder="Team Availability:&#10;Technical Assumptions:&#10;Environmental Assumptions:"/></CardContent>
+                                <CardContent><Textarea name="assumptions" value={canvasInputs.assumptions} onChange={handleCanvasInputChange} rows={8} placeholder="Team Availability:\nTechnical Assumptions:\nEnvironmental Assumptions:"/></CardContent>
                             </Card>
                             <Card>
                                 <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert /> Risks & Uncertainties</CardTitle><CardDescription>Identify potential problems and unknowns to plan for them.</CardDescription></CardHeader>
-                                <CardContent><Textarea name="risks" value={canvasInputs.risks} onChange={handleCanvasInputChange} rows={8} placeholder="Technical Risks:&#10;Personnel Risks:&#10;External Factors:&#10;Open Questions:"/></CardContent>
+                                <CardContent><Textarea name="risks" value={canvasInputs.risks} onChange={handleCanvasInputChange} rows={8} placeholder="Technical Risks:\nPersonnel Risks:\nExternal Factors:\nOpen Questions:"/></CardContent>
                             </Card>
                             <Card>
                                 <CardHeader><CardTitle className="flex items-center gap-2"><ClipboardCheck /> Knowns & Data</CardTitle><CardDescription>Capture the hard facts and concrete data you have available.</CardDescription></CardHeader>
-                                <CardContent><Textarea name="knowns" value={canvasInputs.knowns} onChange={handleCanvasInputChange} rows={8} placeholder="Historical Data:&#10;Team Velocity:&#10;Performance Metrics:&#10;Concrete Facts:"/></CardContent>
+                                <CardContent><Textarea name="knowns" value={canvasInputs.knowns} onChange={handleCanvasInputChange} rows={8} placeholder="Historical Data:\nTeam Velocity:\nPerformance Metrics:\nConcrete Facts:"/></CardContent>
                             </Card>
                             <Card>
                                 <CardHeader><CardTitle className="flex items-center gap-2"><Link /> Dependencies</CardTitle><CardDescription>List everything this project needs from other teams, people, or systems.</CardDescription></CardHeader>
-                                <CardContent><Textarea name="dependencies" value={canvasInputs.dependencies} onChange={handleCanvasInputChange} rows={8} placeholder="Internal Teams:&#10;External Parties:&#10;Decisions:&#10;System Access:"/></CardContent>
+                                <CardContent><Textarea name="dependencies" value={canvasInputs.dependencies} onChange={handleCanvasInputChange} rows={8} placeholder="Internal Teams:\nExternal Parties:\nDecisions:\nSystem Access:"/></CardContent>
                             </Card>
                         </div>
                          <Card className="bg-green-900/20 border-green-700">
                             <CardHeader><CardTitle className="text-green-200 flex items-center gap-2">⭐ The Estimate</CardTitle><CardDescription className="text-green-300">After filling the surrounding blocks, formulate your estimate here. It should always be a range that reflects the built-in uncertainty.</CardDescription></CardHeader>
-                            <CardContent><Textarea name="estimate" value={canvasInputs.estimate} onChange={handleCanvasInputChange} rows={6} className="bg-card" placeholder="The Range:&#10;Confidence Level:&#10;Key Factors:"/></CardContent>
+                            <CardContent><Textarea name="estimate" value={canvasInputs.estimate} onChange={handleCanvasInputChange} rows={6} className="bg-card" placeholder="The Range:\nConfidence Level:\nKey Factors:"/></CardContent>
                         </Card>
                     </AccordionContent>
                 </AccordionItem>
@@ -405,7 +404,7 @@ export function ProposalFramework() {
                 </AccordionItem>
                 <AccordionItem value="item-5">
                     <AccordionTrigger className="text-xl font-headline">5. Assumptions &amp; General Conditions</AccordionTrigger>
-                    <AccordionContent className="pt-4 space-y-6">
+                     <AccordionContent className="pt-4 space-y-6">
                        <Card>
                           <CardContent className="pt-6">
                             {useMSA ? (
