@@ -8,7 +8,7 @@ import { estimateTravelCosts } from '@/ai/flows/estimate-travel-costs';
 import type { AiPoweredRecommendationOutput } from '@/ai/flows/ai-powered-recommendation';
 import { aiPoweredRecommendation } from '@/ai/flows/ai-powered-recommendation';
 import { challengeRecommendation } from '@/ai/flows/challenge-recommendation-flow';
-import type { ChallengeRecommendationInput, ConversationTurn } from '@/ai/schemas/challenge-recommendation-schema';
+import type { ChallengeRecommendationInput, ConversationTurn, ChallengeRecommendationOutput } from '@/ai/schemas/challenge-recommendation-schema';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -18,13 +18,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ModuleCard } from '@/components/module-card';
-import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send } from 'lucide-react';
+import { HardHat, Lightbulb, Loader2, LocateFixed, Printer, ShipWheel, Sheet, FileText, Bot, User, Send, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SherpaModule } from '@/components/sherpa-module';
 import { SherpaOutput } from '@/ai/schemas/sherpa-schema';
 
 type ProjectInfo = { name: string; client: string; date: string; projectId: string; contact: string; version: string; };
-type CostConfig = { onSiteLabor: number; technicianRate: number; livingExpenses: number; pmOverhead: number; };
+type CostConfig = { onSiteLabor: number; technicianRate: number; livingExpenses: number; pmOverhead: number; travelHoursMatrix: number, parking: number, mealsCost: number };
 type StrategyAnalysis = { a: string; b: string; };
 
 export function ProposalFramework() {
@@ -35,12 +35,12 @@ export function ProposalFramework() {
     date: new Date().toISOString().split('T')[0],
     projectId: 'KD-WM-2025',
     contact: 'Cameron Dailey',
-    version: '1.0'
+    version: '5.0 (FINAL - Multi-Strategy Analysis)'
   });
   const [bom, setBom] = useState<GenerateBillOfMaterialsFromDrawingOutput | null>(null);
   const [travelCosts, setTravelCosts] = useState<EstimateTravelCostsOutput | null>(null);
   const [recommendation, setRecommendation] = useState<AiPoweredRecommendationOutput | null>(null);
-  const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, technicianRate: 75, livingExpenses: 330, pmOverhead: 12.5 });
+  const [costConfig, setCostConfig] = useState<CostConfig>({ onSiteLabor: 3, technicianRate: 75, livingExpenses: 330, pmOverhead: 12.5, travelHoursMatrix: 1, parking: 15, mealsCost: 80 });
   const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis>({ a: 'This strategy prioritizes project completion speed by deploying multiple technician teams simultaneously. The final cost is dependent on the number of teams deployed, presenting scenarios for Accelerated (10 techs), Balanced (6 techs), and Sequential (4 techs) deployments.', b: 'This strategy adheres to the key operational constraint of one technician per province. All sites are grouped into logical driving routes ("clusters"). The project is executed in parallel across provinces, with the total duration dictated by the province requiring the longest time to complete all its clusters sequentially.' });
   const [isRecommending, setIsRecommending] = useState(false);
   const [conversation, setConversation] = useState<ConversationTurn[]>([]);
@@ -55,7 +55,7 @@ export function ProposalFramework() {
     const clientData = `Client: ${projectInfo.client}, Standard pricing agreements apply.`;
     const vendorQuotes = "Primary vendor offers a 5% discount on bulk orders over $50,000.";
     const logisticalConfigurations = travelCosts?.optimalRouteSummary || "Standard logistics to be applied based on location density.";
-    const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site @ $${costConfig.technicianRate}/hr. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%.`;
+    const costModelConfigurations = `On-site Labor: ${costConfig.onSiteLabor} hours/site @ $${costConfig.technicianRate}/hr. Living Expenses: $${costConfig.livingExpenses}/night. PM Overhead: ${costConfig.pmOverhead}%. Travel Matrix: ${costConfig.travelHoursMatrix} hour per 100km. Parking: $${costConfig.parking}/day. Meals: $${costConfig.mealsCost}/day.`;
     const bomData = bom?.billOfMaterials || "No Bill of Materials provided.";
 
     return {
@@ -102,9 +102,16 @@ export function ProposalFramework() {
     };
 
     try {
-      const result = await challengeRecommendation(input);
+      const result: ChallengeRecommendationOutput = await challengeRecommendation(input);
       const aiTurn: ConversationTurn = { role: 'model', content: result.response };
       setConversation([...newConversation, aiTurn]);
+      
+      if (result.updatedConfig) {
+        const updatedCostConfig = { ...costConfig, ...result.updatedConfig };
+        setCostConfig(updatedCostConfig);
+        toast({ title: 'Configuration Updated', description: 'The project configuration has been updated based on your request.' });
+      }
+
     } catch (error) {
       console.error("Failed to get challenge response:", error);
       const errorTurn: ConversationTurn = { role: 'model', content: 'Sorry, I encountered an error. Please try again.' };
@@ -127,9 +134,22 @@ export function ProposalFramework() {
   const generateBoMAction = (pdfDataUri: string) => generateBillOfMaterialsFromDrawing({ pdfDataUri });
   const estimateTravelCostsAction = (locationsDataUri: string) => estimateTravelCosts({ locationsDataUri, livingExpensePerNight: costConfig.livingExpenses, techniciansPerLocation: 1 });
 
+  const numLocations = travelCosts?.numberOfLocations || 0;
+  const onsiteLaborCost = costConfig.onSiteLabor * costConfig.technicianRate;
+  const travelCost = travelCosts ? (travelCosts.totalTravelCost / numLocations) : 0;
+  const livingExpensesCost = travelCosts ? (travelCosts.totalLivingExpenses / numLocations) : 0;
+  const mealsCost = travelCosts ? (travelCosts.totalOvernightStays / numLocations) * costConfig.mealsCost : 0;
+  const parkingCost = travelCosts ? (travelCosts.totalOvernightStays / numLocations) * costConfig.parking : 0;
+  
+  const perSiteSubtotal = onsiteLaborCost + travelCost + livingExpensesCost + mealsCost + parkingCost;
+  const totalSubtotal = perSiteSubtotal * numLocations;
+  const pmOverheadCost = totalSubtotal * (costConfig.pmOverhead / 100);
+  const grandTotal = totalSubtotal + pmOverheadCost;
+
+
   return (
     <div className="canvas-container max-w-7xl mx-auto my-8 bg-card text-card-foreground rounded-lg shadow-lg overflow-hidden">
-        <div className="canvas-header bg-primary text-primary-foreground p-4 px-6 text-2xl font-bold">
+        <div className="canvas-header p-4 px-6 text-2xl font-bold">
             ███ Estimating Framework Canvas ███
         </div>
         <div className="toolbar bg-muted p-2 px-6 border-b flex gap-2">
@@ -150,8 +170,17 @@ export function ProposalFramework() {
                 <AccordionItem value="item-1">
                     <AccordionTrigger className="text-xl font-headline">1. Project Setup & Document Ingestion</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-6">
-                        <Card className='bg-secondary/30'>
-                            <CardHeader><CardTitle>Project Details</CardTitle></CardHeader>
+                        <Card className='bg-background/50'>
+                            <CardHeader>
+                               <div className="project-info">
+                                    <div><strong>Project Name:</strong> {projectInfo.name}</div>
+                                    <div><strong>Project ID:</strong> {projectInfo.projectId}</div>
+                                    <div><strong>Client:</strong> {projectInfo.client}</div>
+                                    <div><strong>Contact:</strong> {projectInfo.contact}</div>
+                                    <div><strong>Estimate Version:</strong> {projectInfo.version}</div>
+                                    <div><strong>Status:</strong> {travelCosts ? '✅ Calculation Complete' : '⏳ Pending Inputs'}</div>
+                                </div>
+                            </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-1"><Label htmlFor="name">Project Name</Label><Input id="name" name="name" value={projectInfo.name} onChange={handleProjectInfoChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="projectId">Project ID</Label><Input id="projectId" name="projectId" value={projectInfo.projectId} onChange={handleProjectInfoChange} /></div>
@@ -162,11 +191,14 @@ export function ProposalFramework() {
                             </CardContent>
                         </Card>
                          <Card>
-                            <CardHeader><CardTitle>Core Configuration</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>⚙️ Core Configuration</CardTitle></CardHeader>
                             <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div className="space-y-1"><Label htmlFor="onSiteLabor">On-Site Labor (hours/site)</Label><Input id="onSiteLabor" name="onSiteLabor" type="number" value={costConfig.onSiteLabor} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="technicianRate">Technician Rate ($/hour)</Label><Input id="technicianRate" name="technicianRate" type="number" value={costConfig.technicianRate} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="livingExpenses">Living Expenses ($/night)</Label><Input id="livingExpenses" name="livingExpenses" type="number" value={costConfig.livingExpenses} onChange={handleCostConfigChange} /></div>
+                                <div className="space-y-1"><Label htmlFor="mealsCost">Meals & Incidentals ($/day)</Label><Input id="mealsCost" name="mealsCost" type="number" value={costConfig.mealsCost} onChange={handleCostConfigChange} /></div>
+                                <div className="space-y-1"><Label htmlFor="travelHoursMatrix">Travel (hours/100km)</Label><Input id="travelHoursMatrix" name="travelHoursMatrix" type="number" value={costConfig.travelHoursMatrix} onChange={handleCostConfigChange} /></div>
+                                <div className="space-y-1"><Label htmlFor="parking">Parking ($/day)</Label><Input id="parking" name="parking" type="number" value={costConfig.parking} onChange={handleCostConfigChange} /></div>
                                 <div className="space-y-1"><Label htmlFor="pmOverhead">PM Overhead (%)</Label><Input id="pmOverhead" name="pmOverhead" type="number" value={costConfig.pmOverhead} onChange={handleCostConfigChange} /></div>
                             </CardContent>
                         </Card>
@@ -188,6 +220,39 @@ export function ProposalFramework() {
                             <div className="space-y-2"><Label htmlFor="strategy-b" className="text-lg font-semibold">Strategy B: Optimized Logistical Deployment</Label><Textarea id="strategy-b" name="b" value={strategyAnalysis.b} onChange={handleStrategyAnalysisChange} rows={8} /></div>
                         </div>
                         <div className="text-center"><Button onClick={handleGetRecommendation} disabled={isRecommending} size="lg">{isRecommending ? <Loader2 className="mr-2 animate-spin" /> : <Lightbulb className="mr-2" />}Generate AI Recommendation</Button></div>
+                    
+                        {recommendation && (
+                            <Card className="mt-6">
+                                <CardHeader><CardTitle>Talk to Ascension Engine</CardTitle><CardDescription>Ask follow-up questions to validate the proposal or request changes.</CardDescription></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-4 max-h-96 overflow-y-auto pr-4 info-box bg-muted">
+                                        {conversation.length === 0 && <div className="text-center text-muted-foreground p-4">Ask a question to begin...</div>}
+                                        {conversation.map((turn, index) => (
+                                            <div key={index} className={`flex items-start gap-3 ${turn.role === 'user' ? 'justify-end' : ''}`}>
+                                                {turn.role === 'model' && <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot /></div>}
+                                                <div className={`rounded-lg p-3 max-w-[80%] ${turn.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
+                                                    <p className="text-sm whitespace-pre-wrap">{turn.content}</p>
+                                                </div>
+                                                {turn.role === 'user' && <div className="p-2 rounded-full bg-muted text-foreground"><User /></div>}
+                                            </div>
+                                        ))}
+                                        {isConversing && (
+                                            <div className="flex items-start gap-3">
+                                                <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot /></div>
+                                                <div className="rounded-lg p-3 bg-muted flex items-center space-x-2">
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    <span className="text-sm">Thinking...</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2 pt-4">
+                                        <Textarea placeholder="e.g., Change PM overhead to 15%" value={userQuery} onChange={(e) => setUserQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChallenge(); }}} rows={1} disabled={isConversing} />
+                                        <Button onClick={handleChallenge} disabled={!userQuery.trim() || isConversing}><Send /><span className="sr-only">Send</span></Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
                     </AccordionContent>
                 </AccordionItem>
 
@@ -198,42 +263,73 @@ export function ProposalFramework() {
                             <>
                                 <div className="space-y-4">
                                     <h2 className="text-2xl font-bold text-primary border-b-2 border-primary/30 pb-2">EXECUTIVE SUMMARY</h2>
-                                    <div className="p-4 rounded-md bg-secondary/30 border-l-4 border-accent">
+                                    <div className="info-box">
                                         <p>{recommendation.recommendation}</p>
                                     </div>
-                                    <div className="p-4 rounded-md bg-amber-100 dark:bg-yellow-800/20 text-yellow-900 dark:text-yellow-200 border-l-4 border-amber-400 dark:border-yellow-500">
+                                    <div className="info-box recommendation">
                                         <strong className="font-bold">Overall Recommendation:</strong> For the lowest total cost, <strong>{recommendation.recommendedStrategy}</strong> is recommended. Key factors include: {recommendation.keyFactors}.
                                     </div>
                                 </div>
+                                
+                                {travelCosts && (
                                 <Card>
-                                    <CardHeader><CardTitle>Challenge the Recommendation</CardTitle><CardDescription>Ask follow-up questions to validate the proposal.</CardDescription></CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
-                                            {conversation.map((turn, index) => (
-                                                <div key={index} className={`flex items-start gap-3 ${turn.role === 'user' ? 'justify-end' : ''}`}>
-                                                    {turn.role === 'model' && <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot /></div>}
-                                                    <div className={`rounded-lg p-3 max-w-[80%] ${turn.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                                                        <p className="text-sm whitespace-pre-wrap">{turn.content}</p>
-                                                    </div>
-                                                    {turn.role === 'user' && <div className="p-2 rounded-full bg-muted text-foreground"><User /></div>}
-                                                </div>
-                                            ))}
-                                            {isConversing && (
-                                                <div className="flex items-start gap-3">
-                                                    <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot /></div>
-                                                    <div className="rounded-lg p-3 bg-muted flex items-center space-x-2">
-                                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                                        <span className="text-sm">Thinking...</span>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2 pt-4">
-                                            <Textarea placeholder="e.g., Why is Strategy B cheaper if it takes longer?" value={userQuery} onChange={(e) => setUserQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChallenge(); }}} rows={1} disabled={isConversing} />
-                                            <Button onClick={handleChallenge} disabled={!userQuery.trim() || isConversing}><Send /><span className="sr-only">Send</span></Button>
-                                        </div>
-                                    </CardContent>
+                                  <CardHeader><CardTitle>Cost Breakdown</CardTitle></CardHeader>
+                                  <CardContent>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow>
+                                          <TableHead>Cost Component</TableHead>
+                                          <TableHead className="text-right">Per Site Cost</TableHead>
+                                          <TableHead className="text-right">Total Project Cost ({numLocations} sites)</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        <TableRow>
+                                          <TableCell>On-Site Labor</TableCell>
+                                          <TableCell className="text-right">{onsiteLaborCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{(onsiteLaborCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                          <TableCell>Travel</TableCell>
+                                          <TableCell className="text-right">{travelCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{(travelCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                          <TableCell>Living Expenses</TableCell>
+                                          <TableCell className="text-right">{livingExpensesCost.toLocaleString('en-US', { style: 'currency', currency: ancy: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{(livingExpensesCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                          <TableCell>Meals & Incidentals</TableCell>
+                                          <TableCell className="text-right">{mealsCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{(mealsCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                          <TableCell>Parking</TableCell>
+                                          <TableCell className="text-right">{parkingCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{(parkingCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow className="font-bold bg-secondary/50">
+                                          <TableCell>Subtotal</TableCell>
+                                          <TableCell className="text-right">{perSiteSubtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{totalSubtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                          <TableCell>Project Management Overhead ({costConfig.pmOverhead}%)</TableCell>
+                                          <TableCell className="text-right"></TableCell>
+                                          <TableCell className="text-right">{pmOverheadCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                        <TableRow className="font-extrabold text-lg bg-primary/10">
+                                          <TableCell>Grand Total</TableCell>
+                                          <TableCell className="text-right"></TableCell>
+                                          <TableCell className="text-right">{grandTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                        </TableRow>
+                                      </TableBody>
+                                    </Table>
+                                  </CardContent>
                                 </Card>
+                                )}
+
                             </>
                         ) : (
                             <div className="text-center py-8 text-muted-foreground">Generate an AI Recommendation to see the proposal summary.</div>

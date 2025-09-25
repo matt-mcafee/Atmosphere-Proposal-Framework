@@ -2,13 +2,6 @@ import { z } from 'genkit';
 
 /**
  * @fileOverview Schemas and types for the challenge-recommendation flow.
- *
- * - ConversationTurnSchema - A schema for a single turn in the conversation.
- * - ConversationTurn - A type for a single turn in the conversation.
- * - ChallengeRecommendationInputSchema - The input schema for the challengeRecommendation function.
- * - ChallengeRecommendationInput - The input type for the challengeRecommendation function.
- * - ChallengeRecommendationOutputSchema - The output schema for the challengeRecommendation function.
- * - ChallengeRecommendationOutput - The return type for the challengeRecommendation function.
  */
 
 export const ConversationTurnSchema = z.object({
@@ -30,7 +23,20 @@ export const ChallengeRecommendationInputSchema = z.object({
 });
 export type ChallengeRecommendationInput = z.infer<typeof ChallengeRecommendationInputSchema>;
 
+
+const UpdatedConfigSchema = z.object({
+    onSiteLabor: z.number().optional(),
+    technicianRate: z.number().optional(),
+    livingExpenses: z.number().optional(),
+    pmOverhead: z.number().optional(),
+    travelHoursMatrix: z.number().optional(),
+    parking: z.number().optional(),
+    mealsCost: z.number().optional(),
+}).describe('If the user requests a change to a config value, populate this object with the new values.');
+
+
 export const ChallengeRecommendationOutputSchema = z.object({
-  response: z.string().describe('The AI\'s response to the user\'s challenging question.'),
+  response: z.string().describe("The AI's response to the user's challenging question."),
+  updatedConfig: UpdatedConfigSchema.optional(),
 });
 export type ChallengeRecommendationOutput = z.infer<typeof ChallengeRecommendationOutputSchema>;
