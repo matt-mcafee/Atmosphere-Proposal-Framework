@@ -65,10 +65,18 @@ export function ProposalFramework() {
       setUseMSA(value.toLowerCase().trim() === 'equinix');
     }
   };
-  const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
-  const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
-  const handleCanvasInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setCanvasInputs({ ...canvasInputs, [e.target.name]: e.target.value });
 
+  const handleCostConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCostConfig({ ...costConfig, [e.target.name]: parseFloat(e.target.value) || 0 });
+  };
+  
+  const handleStrategyAnalysisChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setStrategyAnalysis({ ...strategyAnalysis, [e.target.name]: e.target.value });
+  };
+
+  const handleCanvasInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCanvasInputs({ ...canvasInputs, [e.target.name]: e.target.value });
+  };
 
   const getContextForAI = () => {
     const clientData = `Client: ${projectInfo.client}, Standard pricing agreements apply.`;
@@ -148,7 +156,6 @@ export function ProposalFramework() {
       setIsConversing(false);
     }
   };
-
 
   const handleSherpaSuccess = (data: SherpaOutput) => {
     const newProjectInfo = { ...projectInfo };
