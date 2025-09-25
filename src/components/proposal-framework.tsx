@@ -150,7 +150,7 @@ export function ProposalFramework() {
   return (
     <div className="canvas-container max-w-7xl mx-auto my-8 bg-card text-card-foreground rounded-lg shadow-lg overflow-hidden">
         <div className="canvas-header p-4 px-6 text-2xl font-bold">
-            ███ Estimating Framework Canvas ███
+            {'███ Estimating Framework Canvas ███'}
         </div>
         <div className="toolbar bg-muted p-2 px-6 border-b flex gap-2">
             <Button variant="secondary" onClick={() => window.print()}><Printer className="mr-2"/>Export to PDF</Button>
@@ -296,7 +296,7 @@ export function ProposalFramework() {
                                         </TableRow>
                                         <TableRow>
                                           <TableCell>Living Expenses</TableCell>
-                                          <TableCell className="text-right">{livingExpensesCost.toLocaleString('en-US', { style: 'currency', currency: ancy: 'USD' })}</TableCell>
+                                          <TableCell className="text-right">{livingExpensesCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
                                           <TableCell className="text-right">{(livingExpensesCost * numLocations).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
                                         </TableRow>
                                         <TableRow>
