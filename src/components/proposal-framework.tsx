@@ -251,7 +251,7 @@ export function ProposalFramework() {
                     <AccordionContent className="pt-4 space-y-6">
                         <Card>
                             <CardHeader><CardTitle className="flex items-center gap-2"><Milestone /> Scope & Boundaries</CardTitle><CardDescription>Define exactly what is included and excluded to prevent scope creep.</CardDescription></CardHeader>
-                            <CardContent><Textarea name="scope" value={canvasInputs.scope} onChange={handleCanvasInputChange} rows={6} placeholder="Deliverables:\n\"Done\" Criteria:\nIn Scope:\nOut of Scope:" /></CardContent>
+                            <CardContent><Textarea name="scope" value={canvasInputs.scope} onChange={handleCanvasInputChange} rows={6} placeholder="Deliverables:\n&quot;Done&quot; Criteria:\nIn Scope:\nOut of Scope:" /></CardContent>
                         </Card>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Card>
